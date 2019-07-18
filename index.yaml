@@ -8,7 +8,7 @@ entries:
     digest: d6099ac9fac47f0f99b3eff054028bfeab01e100bdff74c4fadadf7af3fe1ecc
     name: semoss
     urls:
-    - https://kunal0137.github.io/SEMOSS_Helm/semoss-1.tgz
+    - https://kunal0137.github.io/SEMOSS_Helm/semoss/v1/semoss-1.tgz
     version: "1"
   - apiVersion: v1
     appVersion: "1.0"
@@ -17,6 +17,6 @@ entries:
     digest: d411ca8e484a871a77444cd206e642f950a9a3f486a59377e1fe0864f7e83a26
     name: semoss
     urls:
-    - https://kunal0137.github.io/SEMOSS_Helm/semoss-rancher-1.tgz
+    - https://kunal0137.github.io/SEMOSS_Helm/semoss/rancher/semoss-rancher-1.tgz
     version: rancher-1
 generated: 2019-07-18T16:54:16.095593-04:00
