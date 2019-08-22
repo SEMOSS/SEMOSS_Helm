@@ -3,11 +3,11 @@ entries:
   semoss:
   - apiVersion: v1
     appVersion: "1.2"
-    created: 2019-08-22T10:02:52.103749-04:00
+    created: 2019-08-22T10:13:30.543759-04:00
     description: A Helm chart for Kubernetes
-    digest: 177db4accfb777684a363306fac64bc8101b102f2e7dbd85a8344063f7975f9e
+    digest: e5ade28abfecda3d1c79def2dcf9cad0cdf9fcdbd42eea148b0ddab6da014f5d
     name: semoss
     urls:
     - semoss-1.2.tgz
     version: "1.2"
-generated: 2019-08-22T10:02:52.103141-04:00
+generated: 2019-08-22T10:13:30.541036-04:00

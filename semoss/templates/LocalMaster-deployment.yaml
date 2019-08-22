@@ -26,11 +26,15 @@ spec:
           imagePullPolicy: {{ .Values.localmaster.image.pullPolicy }}
           ports:
           - containerPort: {{.Values.localmaster.service.port}}
+          {{- if .Values.localmaster.useStorage}}
           volumeMounts:
           - mountPath: /opt/h2-data
             name:  {{.Values.localmaster.volume.name}}
+          {{- end}}
+      {{- if .Values.localmaster.useStorage}}
       volumes:
       - name: {{.Values.localmaster.volume.name}}
         persistentVolumeClaim:
           claimName: {{.Values.localmaster.volume.persistentVolumeClaimName}}
+     {{- end}}
 

@@ -126,7 +126,7 @@ security:
 
   nameOverride: ""
   fullnameOverride: ""
-
+  useStorage: false
   service:
     type: ClusterIP
     port: 1521
@@ -141,7 +141,7 @@ localmaster:
     repository: kunal0137/localmaster
     tag: latest
     pullPolicy: IfNotPresent
-
+  useStorage: false
   nameOverride: ""
   fullnameOverride: ""
 

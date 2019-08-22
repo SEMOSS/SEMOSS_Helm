@@ -454,6 +454,12 @@ questions:
   type: string
   label: NodePort for for Local Master
   group: "Local Master Configuration"
+- variable: localmaster.volume.useStorage
+  default: true
+  description: "Use PV for Local Master"
+  type: boolean
+  label: Use PV for Local Master
+  group: "Local Master Configuration
 - variable: localmaster.volume.name
   default: "lm"
   description: "Enter name for local master volume"
