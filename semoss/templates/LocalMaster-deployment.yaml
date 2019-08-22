@@ -1,0 +1,36 @@
+  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s"  .Values.env .Values.localmaster.name}}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s"  .Values.env .Values.localmaster.name}}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.localmaster.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.localmaster.name}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.localmaster.name}}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{printf "%s-%s"  .Values.env .Values.localmaster.name}}
+          image: "{{ .Values.localmaster.image.repository }}:{{ .Values.localmaster.image.tag }}"
+          imagePullPolicy: {{ .Values.localmaster.image.pullPolicy }}
+          ports:
+          - containerPort: {{.Values.localmaster.service.port}}
+          volumeMounts:
+          - mountPath: /opt/h2-data
+            name:  {{.Values.localmaster.volume.name}}
+      volumes:
+      - name: {{.Values.localmaster.volume.name}}
+        persistentVolumeClaim:
+          claimName: {{.Values.localmaster.volume.persistentVolumeClaimName}}
+

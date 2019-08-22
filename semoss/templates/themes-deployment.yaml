@@ -1,0 +1,28 @@
+  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s"  .Values.env .Values.themes.name}}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s"  .Values.env .Values.themes.name}}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.themes.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.themes.name}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.themes.name}}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{printf "%s-%s"  .Values.env .Values.themes.name}}
+          image: "{{ .Values.themes.image.repository }}:{{ .Values.themes.image.tag }}"
+          imagePullPolicy: {{ .Values.themes.image.pullPolicy }}
+          ports:
+          - containerPort: {{.Values.themes.service.port}}

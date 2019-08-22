@@ -1,0 +1,514 @@
+categories:
+- Analytics
+questions:
+- variable: env
+  default: "semoss"
+  description: "Enter Domain Tag"
+  type: string
+  label: Enter Domain Tag
+  group: "Domain Configuration"
+- variable: semoss.image.tag
+  default: "3.6.1"
+  description: "Enter the SEMOSS image tag"
+  type: string
+  label: SEMOSS Image Tag
+  group: "SEMOSS Configuration"
+- variable: semoss.image.pullPolicy
+  default: "IfNotPresent"
+  description: "Pull Policy for SEMOSS"
+  type: enum
+  label: Pull Policy for SEMOSS
+  group: "SEMOSS Configuration"
+  options:
+  - "Always"
+  - "IfNotPresent"
+  - "Never"
+- variable: semoss.replicaCount
+  default: 1
+  description: "Initial replica count for SEMOSS"
+  type: int
+  label: Initial replica count for SEMOSS
+  group: "SEMOSS Configuration"
+- variable: semoss.service.type
+  default: "ClusterIP"
+  description: "Service type for SEMOSS"
+  type: enum
+  label: Service type for SEMOSS
+  group: "SEMOSS Configuration"
+  options:
+  - "ClusterIP"
+  - "NodePort"
+- variable: semoss.service.nodePort
+  show_if: "semoss.service.type=NodePort"
+  default: ""
+  description: "NodePort for SEMOSS"
+  type: string
+  label: NodePort for SEMOSS
+  group: "SEMOSS Configuration"
+- variable: semoss.monolithCookie
+  default: "monolith"
+  description: "Name for Monolith Cookie"
+  type: string
+  label: Name for Monolith Cookie
+  group: "SEMOSS Configuration"
+- variable: semoss.googleAnalytics
+  default: "UA-66598715-4"
+  description: "Google Analytics Tag ID"
+  type: string
+  label: Google Analytics Tag ID
+  group: "SEMOSS Configuration"
+
+- variable: semoss.environmentVariables.FILE_UPLOAD_LIMIT
+  default: 50
+  description: "File upload limit (MB)"
+  type: int
+  label: File upload limit (MB)
+  group: "SEMOSS Configuration"
+
+- variable: semoss.readinessProbe.turnOn
+  default: true
+  description: "Turn on readiness healthcheck"
+  type: boolean
+  label: Turn on readiness healthcheck
+  group: "SEMOSS Configuration"
+
+- variable: semoss.readinessProbe.initialDelaySeconds
+  default: 60
+  description: "Default initial delay for readiness healthcheck"
+  type: int
+  label: Default initial delay for readiness healthcheck
+  group: "SEMOSS Configuration"
+- variable: semoss.readinessProbe.timeoutSeconds
+  default: 5
+  description: "Default timeout delay for readiness healthcheck"
+  type: int
+  label: Default timeout delay for readiness healthcheck
+  group: "SEMOSS Configuration"
+- variable: semoss.readinessProbe.periodCheck
+  default: 5
+  description: "Default time period in seconds between readiness checks"
+  type: int
+  label: Default time period in seconds between readiness checks
+  group: "SEMOSS Configuration"
+
+- variable: semoss.livenessProbe.turnOn
+  default: true
+  description: "Turn on liveness healthcheck"
+  type: boolean
+  label: Turn on liveness healthcheck
+  group: "SEMOSS Configuration"
+
+- variable: semoss.livenessProbe.initialDelaySeconds
+  default: 60
+  description: "Default initial delay for liveness healthcheck"
+  type: int
+  label: Default initial delay for liveness healthcheck
+  group: "SEMOSS Configuration"
+- variable: semoss.livenessProbe.timeoutSeconds
+  default: 5
+  description: "Default timeout delay for liveness healthcheck"
+  type: int
+  label: Default timeout delay for liveness healthcheck
+  group: "SEMOSS Configuration"
+- variable: semoss.livenessProbe.periodCheck
+  default: 5
+  description: "Default time period in seconds between liveness checks"
+  type: int
+  label: Default time period in seconds between liveness checks
+  group: "SEMOSS Configuration"
+
+- variable: semoss.security.securityOn
+  default: false
+  description: "Turn sercurity on for SEMOSS"
+  type: boolean
+  label: Turn sercurity on for SEMOSS
+  group: "SEMOSS Security Configuration"
+- variable: semoss.security.anonymousUserOn
+  default: false
+  description: "Enable anonymous users for SEMOSS"
+  type: boolean
+  label: Enable anonymous users for SEMOSS
+  group: "SEMOSS Security Configuration"
+- variable: semoss.security.anonymousUserUploadOn
+  default: false
+  description: "Enable anonymous users to upload to SEMOSS"
+  type: boolean
+  label: Enable anonymous users to upload to SEMOSS
+  group: "SEMOSS Security Configuration"
+- variable: semoss.social.setSocial
+  show_if: "semoss.securityOn=true"
+  default: false
+  description: "Set social properties for SEMOSS"
+  type: boolean
+  label: Set social properties on for SEMOSS
+  group: "SEMOSS Security Configuration"
+  show_subquestion_if: true
+  subquestions:
+  - variable: semoss.social.redirectUrl
+    default: ""
+    type: string
+    description: "What is the redirect url account?"
+    label: What is the redirect url account?
+  - variable: semoss.social.google_maps_api
+    default: ""
+    type: string
+    description: "Google Maps API"
+    label: Google Maps API
+  - variable: semoss.social.enable_native_login
+    default: false
+    type: boolean
+    description: "Enable Native Login"
+    label: Enable Native Login
+  - variable: semoss.social.enable_native_registration
+    show_if: "semoss.social.enable_native_login=true"
+    default: false
+    type: boolean
+    description: "Enable Native Registration"
+    label: Enable Native Registration
+  - variable: semoss.social.enable_google_login
+    default: false
+    type: boolean
+    description: "Enable Google Login"
+    label: Enable Google Login
+  - variable: semoss.social.google_client_id
+    show_if: "semoss.social.enable_google_login=true"
+    default: ""
+    type: string
+    description: "Google Client ID"
+    label: Google Client ID
+  - variable: semoss.social.google_secret_key
+    show_if: "semoss.social.enable_google_login=true"
+    default: ""
+    type: string
+    description: "Google Secret Key"
+    label: Google Secret Key
+  - variable: semoss.social.google_redirect_uri
+    show_if: "semoss.social.enable_google_login=true"
+    default: ""
+    type: string
+    description: "Google Redirect URL"
+    label: Google Redirect URL
+  - variable: semoss.social.google_scope
+    show_if: "semoss.social.enable_google_login=true"
+    default: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
+    type: string
+    description: "Google Scope"
+    label: Google Scope
+  - variable: semoss.social.google_access_type
+    show_if: "semoss.social.enable_google_login=true"
+    default: "online"
+    type: string
+    description: "Google Access Type"
+    label: Google Access Type
+
+  - variable: semoss.social.enable_github_login
+    default: false
+    type: boolean
+    description: "Enable Github Login"
+    label: Enable Github Login
+  - variable: semoss.social.github_client_id
+    show_if: "semoss.social.enable_github_login=true"
+    default: ""
+    type: string
+    description: "Github Client ID"
+    label: Github Client ID
+  - variable: semoss.social.github_secret_key
+    show_if: "semoss.social.enable_github_login=true"
+    default: ""
+    type: string
+    description: "Github Secret Key"
+    label: Github Secret Key
+  - variable: semoss.social.github_redirect_uri
+    show_if: "semoss.social.enable_github_login=true"
+    default: ""
+    type: string
+    description: "Github Redirect URL"
+    label: Github Redirect URL
+  - variable: semoss.social.github_scope
+    show_if: "semoss.social.enable_github_login=true"
+    default: "public_repo"
+    type: string
+    description: "Github Scope"
+    label: Github Scope
+
+  - variable: semoss.social.enable_ms_login
+    default: false
+    type: boolean
+    description: "Enable MS Login"
+    label: Enable MS Login
+  - variable: semoss.social.ms_client_id
+    show_if: "semoss.social.enable_ms_login=true"
+    default: ""
+    type: string
+    description: "MS Client ID"
+    label: MS Client ID
+  - variable: semoss.social.ms_secret_key
+    show_if: "semoss.social.enable_ms_login=true"
+    default: ""
+    type: string
+    description: "MS Secret Key"
+    label: MS Secret Key
+  - variable: semoss.social.ms_redirect_uri
+    show_if: "semoss.social.enable_ms_login=true"
+    default: ""
+    type: string
+    description: "MS Redirect URL"
+    label: MS Redirect URL
+  - variable: semoss.social.ms_scope
+    show_if: "semoss.social.enable_ms_login=true"
+    default: "User.Read"
+    type: string
+    description: "MS Scope"
+    label: MS Scope
+  - variable: semoss.social.ms_authority
+    show_if: "semoss.social.enable_ms_login=true"
+    default: ""
+    type: string
+    description: "MS Authority"
+    label: MS Authority
+  - variable: semoss.social.ms_tenant
+    show_if: "semoss.social.enable_ms_login=true"
+    default: ""
+    type: string
+    description: "MS Tenant"
+    label: MS Tenant
+
+- variable: semoss.environmentVariables.SEMOSS_IS_CLUSTER
+  default: "true"
+  description: "SEMOSS Cluster"
+  type: boolean
+  show_subquestion_if: true
+  label: Is SEMOSS in Cluster Set Up?
+  group: "SEMOSS Cluster Configuration"
+  subquestions:
+  - variable: semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER
+    default: "AZURE"
+    type: enum
+    description: "Which cloud storage account?"
+    label: Which cloud storage account?
+    options:
+    - "AZURE"
+    - "AWS"
+  - variable: semoss.environmentVariables.AZURE_ACCT_NAME
+    show_if: "semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER=AZURE"
+    default: ""
+    description: "Azure Account Name"
+    type: string
+    label: Azure Storage Account Name
+  - variable: semoss.environmentVariables.AZURE_ACCT_KEY
+    show_if: "semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER=AZURE"
+    default: ""
+    description: "Azure Account Key"
+    type: string
+    label: Azure Storage Account Key
+  - variable: semoss.environmentVariables.AWS_REGION
+    show_if: "semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER=AWS"
+    default: ""
+    description: "AWS Region"
+    type: string
+    label: AWS Region
+  - variable: semoss.environmentVariables.AWS_BUCKET
+    show_if: "semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER=AWS"
+    default: ""
+    description: "AWS Bucket Name"
+    type: string
+    label: AWS Bucket Name
+- variable: semoss.r.r_on
+  default: true
+  description: "Use R"
+  type: boolean
+  label: Use R
+  group: "SEMOSS R Configuration"
+
+- variable: semoss.r.r_connection_type
+  show_if: "semoss.r.r_on=true"
+  default: "JRI"
+  description: "R Connection Type"
+  type: enum
+  label: R Connection Type
+  group: "SEMOSS R Configuration"
+  options:
+  - "JRI"
+  - "Rserve"
+  - "User_Rserve_Pooled"
+  - "User_Rserve_Dedicated"
+  - "User_Rserve_Single"
+
+- variable: semoss.r.r_pool_size
+  show_if: "semoss.r.r_connection_type=User_Rserve_Pooled"
+  default: 8
+  description: "Rserve Connection Pool Size"
+  type: int
+  label: Rserve Connection Pool Size
+  group: "SEMOSS R Configuration"
+- variable: semoss.r.image.repository
+  show_if: "semoss.r.r_connection_type=User_Rserve_Single"
+  default: "semoss/docker"
+  description: "Image for Rserve"
+  type: string
+  label: Image for Rserve
+  group: "SEMOSS R Configuration"
+- variable: semoss.r.image.tag
+  show_if: "semoss.r.r_connection_type=User_Rserve_Single"
+  default: "latest"
+  description: "Image tag for Rserve"
+  type: string
+  label: Image tag for Rserve
+  group: "SEMOSS R Configuration"
+- variable: semoss.r.r_user_recovery
+  default: false
+  description: "Recover user R session"
+  type: boolean
+  label: Recover user R session
+  group: "SEMOSS R Configuration"
+
+
+- variable: nginx.image.tag
+  default: "latest"
+  description: "Enter the NGINX image tag"
+  type: string
+  label: NGINX Image Tag
+  group: "NGINX Configuration"
+- variable: nginx.image.pullPolicy
+  default: "IfNotPresent"
+  description: "Pull Policy for NGINX"
+  type: enum
+  label: Pull Policy for NGINX
+  group: "NGINX Configuration"
+  options:
+  - "Always"
+  - "IfNotPresent"
+  - "Never"
+- variable: nginx.service.type
+  default: "NodePort"
+  description: "Service type for NGINX"
+  type: enum
+  label: Service type for NGINX
+  group: "NGINX Configuration"
+  options:
+  - "ClusterIP"
+  - "NodePort"
+- variable: nginx.service.nodePort
+  show_if: "nginx.service.type=NodePort"
+  default: ""
+  description: "NodePort for for NGINX"
+  type: string
+  label: NodePort for for NGINX
+  group: "NGINX Configuration"
+
+- variable: nginx.cookieName
+  default: "route"
+  description: "Custom cookie name for sticky session"
+  type: string
+  label: Custom cookie name for sticky session
+  group: "NGINX Configuration"
+
+- variable: nginx.livenessProbe.initialDelaySeconds
+  default: 60
+  description: "Default initial delay for liveness healthcheck"
+  type: int
+  label: Default initial delay for liveness healthcheck
+  group: "NGINX Configuration"
+- variable: nginx.livenessProbe.timeoutSeconds
+  default: 5
+  description: "Default timeout delay for liveness healthcheck"
+  type: int
+  label: Default timeout delay for liveness healthcheck
+  group: "NGINX Configuration"
+- variable: nginx.livenessProbe.periodCheck
+  default: 5
+  description: "Default time period in seconds between liveness checks"
+  type: int
+  label: Default time period in seconds between liveness checks
+  group: "NGINX Configuration"
+
+- variable: localmaster.image.tag
+  default: "latest"
+  description: "Enter the Local Master image tag"
+  type: string
+  label: Local Master Image Tag
+  group: "Local Master Configuration"
+- variable: localmaster.image.pullPolicy
+  default: "IfNotPresent"
+  description: "Pull Policy for Local Master"
+  type: enum
+  label: Pull Policy for Local Master
+  group: "Local Master Configuration"
+  options:
+  - "Always"
+  - "IfNotPresent"
+  - "Never"
+- variable: localmaster.service.type
+  default: "ClusterIP"
+  description: "Service type for Local Master"
+  type: enum
+  label: Service type for Local Master
+  group: "Local Master Configuration"
+  options:
+  - "ClusterIP"
+  - "NodePort"
+- variable: localmaster.service.nodePort
+  show_if: "localmaster.service.type=NodePort"
+  default: ""
+  description: "NodePort for for Local Master"
+  type: string
+  label: NodePort for for Local Master
+  group: "Local Master Configuration"
+- variable: localmaster.volume.name
+  default: "lm"
+  description: "Enter name for local master volume"
+  type: string
+  label: Enter name for local master volume
+  group: "Local Master Configuration"
+- variable: localmaster.volume.persistentVolumeClaimName
+  default: "lmpvc"
+  description: "Enter name for local master persistentVolumeClaim"
+  type: string
+  label: Enter name for local master persistentVolumeClaimName
+  group: "Local Master Configuration"
+
+
+- variable: security.image.tag
+  default: "latest"
+  description: "Enter the Security image tag"
+  type: string
+  label: Security Image Tag
+  group: "Security Configuration"
+- variable: security.image.pullPolicy
+  default: "IfNotPresent"
+  description: "Pull Policy for Security"
+  type: enum
+  label: Pull Policy for Security
+  group: "Security Configuration"
+  options:
+  - "Always"
+  - "IfNotPresent"
+  - "Never"
+- variable: security.service.type
+  default: "ClusterIP"
+  description: "Service type for Security"
+  type: enum
+  label: Service type for Security
+  group: "Security Configuration"
+  options:
+  - "ClusterIP"
+  - "NodePort"
+- variable: security.service.nodePort
+  show_if: "security.service.type=NodePort"
+  default: ""
+  description: "NodePort for for Security"
+  type: string
+  label: NodePort for for Security
+  group: "Security Configuration"
+- variable: security.volume.name
+  default: "sec"
+  description: "Enter name for Security volume"
+  type: string
+  label: Enter name for Security volume
+  group: "Security Configuration"
+- variable: security.volume.persistentVolumeClaimName
+  default: "secpvc"
+  description: "Enter name for Security persistentVolumeClaim"
+  type: string
+  label: Enter name for Security persistentVolumeClaimName
+  group: "Security Configuration"

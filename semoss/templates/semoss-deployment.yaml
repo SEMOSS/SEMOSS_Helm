@@ -1,0 +1,276 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
+
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.semoss.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{printf "%s-%s" .Values.env .Values.semoss.name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.semoss.image.repository }}:{{ .Values.semoss.image.tag }}"
+          imagePullPolicy: {{ .Values.semoss.image.pullPolicy }}
+          {{- if .Values.semoss.readinessProbe.turnOn}}
+          readinessProbe:
+           httpGet:
+            path: /Monolith/api/config
+            port: 8080
+           initialDelaySeconds: {{ .Values.semoss.readinessProbe.initialDelaySeconds }}
+           timeoutSeconds: {{ .Values.semoss.readinessProbe.timeoutSeconds }}
+           periodSeconds: {{ .Values.semoss.readinessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.semoss.livenessProbe.turnOn}}
+          livenessProbe:
+           httpGet:
+            path: /Monolith/api/config
+            port: 8080
+           initialDelaySeconds: {{ .Values.semoss.livenessProbe.initialDelaySeconds }}
+           timeoutSeconds: {{ .Values.semoss.livenessProbe.timeoutSeconds }}
+           periodSeconds: {{ .Values.semoss.livenessProbe.periodSeconds }}
+          {{- end }}
+          command:
+          - /bin/bash
+          args:
+            - -c
+            - echo export REMOTE_SECURITY_IP=$REMOTE_SECURITY_KEY  >> ~/.bashrc; echo export REMOTE_LOCALMASTER_IP=$REMOTE_LOCALMASTER_KEY  >> ~/.bashrc; echo export REMOTE_THEMES_IP=$REMOTE_THEMES_KEY  >> ~/.bashrc; echo export ZK=$REMOTE_ZK_KEY >> ~/.bashrc; echo export HOST=$POD_IP:8080 >> ~/.bashrc; source ~/.bashrc; git reset --hard; git pull; chmod 777 *; /opt/semoss-artifacts/artifacts/scripts/runCS.sh
+          env: 
+          - name: REMOTE_SECURITY_KEY
+            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "SECURITY_SERVICE_HOST" "$" .Values.env "SECURITY_SERVICE_PORT" | upper}}
+          - name: REMOTE_LOCALMASTER_KEY
+            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "LOCALMASTER_SERVICE_HOST" "$" .Values.env "LOCALMASTER_SERVICE_PORT" | upper}}
+          - name: REMOTE_THEMES_KEY
+            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "THEMES_SERVICE_HOST" "$" .Values.env "THEMES_SERVICE_PORT" | upper}}
+          - name: REMOTE_ZK_KEY
+            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "ZK_SERVICE_HOST" "$" .Values.env "ZK_SERVICE_PORT" | upper}}
+          - name: REMOTE_SECURITY
+            value: "true"
+          - name: REMOTE_LOCALMASTER
+            value: "true"
+          - name: REMOTE_THEMES
+            value: "true"
+
+          {{- if .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT  }}
+          - name: FILE_UPLOAD_LIMIT
+            value: {{quote .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT }}
+          {{- end }}
+          
+          {{- if .Values.semoss.environmentVariables.SEMOSS_IS_CLUSTER  }}
+          - name: SEMOSS_IS_CLUSTER
+            value: {{quote .Values.semoss.environmentVariables.SEMOSS_IS_CLUSTER }}
+          {{- end }}
+
+          {{- if .Values.semoss.environmentVariables.AZCONN  }}
+          - name: AZCONN
+            value: {{quote .Values.semoss.environmentVariables.AZCONN }}
+          {{- end }}
+
+          {{- if .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER  }}
+          - name: SEMOSS_STORAGE_PROVIDER
+            value: {{ .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER }}
+          {{- end }}
+
+          {{- if .Values.semoss.environmentVariables.AZURE_ACCT_NAME  }}
+          - name: AZURE_ACCT_NAME
+            value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_NAME }}
+          {{- end }}
+
+          {{- if .Values.semoss.environmentVariables.AZURE_ACCT_KEY  }}
+          - name: AZURE_ACCT_KEY
+            value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_KEY }}
+          {{- end }}
+
+          {{- if .Values.semoss.environmentVariables.AWS_REGION  }}
+          - name: AWS_REGION
+            value: {{ .Values.semoss.environmentVariables.AWS_REGION }}
+          {{- end }}
+
+          {{- if .Values.semoss.environmentVariables.AWS_BUCKET  }}
+          - name: AWS_BUCKET
+            value: {{ .Values.semoss.environmentVariables.AWS_BUCKET }}
+          {{- end }}
+
+          {{- if .Values.semoss.security.securityOn  }}
+          - name: SECURITY_ON
+            value: {{quote .Values.semoss.security.securityOn }}
+          {{- end }}
+
+          {{- if .Values.semoss.security.anonymousUserOn  }}
+          - name: ANONYMOUS_USERS
+            value: {{quote .Values.semoss.security.anonymousUserOn }}
+          {{- end }}
+
+          {{- if .Values.semoss.security.anonymousUserUploadOn  }}
+          - name: ANONYMOUS_USER_UPLOAD
+            value: {{quote .Values.semoss.security.anonymousUserUploadOn }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.setSocial  }}
+          - name: SETSOCIAL
+            value: {{quote .Values.semoss.social.setSocial }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.redirectUrl  }}
+          - name: REDIRECT
+            value: {{quote .Values.semoss.social.redirectUrl }}
+          {{- end }}
+
+
+          {{- if .Values.semoss.social.enable_native_login  }}
+          - name: ENABLE_NATIVE
+            value: {{quote .Values.semoss.social.enable_native_login }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.enable_native_registration  }}
+          - name: ENABLE_NATIVE_REGISTRATION
+            value: {{quote .Values.semoss.social.enable_native_registration }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.enable_google_login  }}
+          - name: ENABLE_GOOGLE
+            value: {{quote .Values.semoss.social.enable_google_login }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.google_client_id  }}
+          - name: GOOGLE_CLIENT_ID
+            value: {{quote .Values.semoss.social.google_client_id }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.google_secret_key  }}
+          - name: GOOGLE_SECRET_KEY
+            value: {{quote .Values.semoss.social.google_secret_key }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.google_redirect_uri  }}
+          - name: GOOGLE_REDIRECT
+            value: {{quote .Values.semoss.social.google_redirect_uri }}
+          {{- end }}
+
+
+          {{- if .Values.semoss.social.enable_github_login  }}
+          - name: ENABLE_GITHUB
+            value: {{quote .Values.semoss.social.enable_github_login }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.github_client_id  }}
+          - name: GITHUB_CLIENT_ID
+            value: {{quote .Values.semoss.social.github_client_id }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.github_secret_key  }}
+          - name: GITHUB_SECRET_KEY
+            value: {{quote .Values.semoss.social.github_secret_key }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.github_redirect_uri  }}
+          - name: GITHUB_REDIRECT
+            value: {{quote .Values.semoss.social.github_redirect_uri }}
+          {{- end }}
+
+
+          {{- if .Values.semoss.social.enable_ms_login  }}
+          - name: ENABLE_MS
+            value: {{quote .Values.semoss.social.enable_ms_login }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.ms_authority  }}
+          - name: MS_AUTHORITY
+            value: {{quote .Values.semoss.social.ms_authority }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.ms_tenant  }}
+          - name: MS_TENANT
+            value: {{quote .Values.semoss.social.ms_tenant }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.ms_client_id  }}
+          - name: MS_CLIENT_ID
+            value: {{quote .Values.semoss.social.ms_client_id }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.ms_secret_key  }}
+          - name: MS_SECRET_KEY
+            value: {{quote .Values.semoss.social.ms_secret_key }}
+          {{- end }}
+
+          {{- if .Values.semoss.social.ms_redirect_uri  }}
+          - name: MS_REDIRECT
+            value: {{quote .Values.semoss.social.ms_redirect_uri }}
+          {{- end }}
+
+          {{- if .Values.semoss.r.r_on  }}
+          - name: R_ON
+            value: {{quote .Values.semoss.r.r_on }}
+          {{- end }}
+
+          {{- if .Values.semoss.r.r_connection_type  }}
+          - name: R_CONNECTION_TYPE
+            value: {{quote .Values.semoss.r.r_connection_type }}
+          {{- end }}
+
+          {{- if .Values.semoss.r.r_pool_size  }}
+          - name: RSERVE_CONNECTION_POOL_SIZE
+            value: {{quote .Values.semoss.r.r_pool_size }}
+          {{- end }}
+
+          {{- if .Values.semoss.r.r_user_recovery  }}
+          - name: R_USER_RECOVERY
+            value: {{quote .Values.semoss.r.r_user_recovery }}
+          {{- end }}
+          
+          {{- if .Values.semoss.monolithCookie  }}
+          - name: MONOLITH_COOKIE
+            value: {{ .Values.semoss.monolithCookie }}
+          {{- end }}
+
+          {{- if .Values.semoss.googleAnalytics  }}
+          - name: GOOGLE_ANALYTICS_ID
+            value: {{ .Values.semoss.googleAnalytics }}
+          {{- end }}
+
+          - name: POD_IP
+            valueFrom:
+             fieldRef:
+               apiVersion: v1
+               fieldPath: status.podIP
+
+          ports:
+          - containerPort: {{.Values.semoss.service.port}}
+          {{- if eq .Values.semoss.r.r_connection_type "User_Rserve_Single" }}
+          volumeMounts:
+          - name: rtemp
+            mountPath: /opt/semosshome/R/Temp
+          - name: csvinsights
+            mountPath: /opt/semosshome/InsightCache/
+          {{- end }}
+        {{- if eq .Values.semoss.r.r_connection_type "User_Rserve_Single" }}
+        - name: {{printf "%s-%s"  .Values.env .Values.semoss.r.containerName}}
+          image: "{{ .Values.semoss.r.image.repository }}:{{ .Values.semoss.r.image.tag }}"
+          imagePullPolicy: {{ .Values.semoss.image.pullPolicy }}
+          command: ["/usr/lib/R/bin/Rserve.dbg"]
+          args: ["--vanilla"]
+          volumeMounts:
+          - name: rtemp
+            mountPath: /opt/semosshome/R/Temp
+          - name: csvinsights
+            mountPath: /opt/semosshome/InsightCache/
+        {{- end }}
+      {{- if eq .Values.semoss.r.r_connection_type "User_Rserve_Single" }}
+      volumes:
+      - name: rtemp
+        emptyDir: {}
+      - name: csvinsights
+      {{- end }}
