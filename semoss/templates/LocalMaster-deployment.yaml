@@ -36,5 +36,5 @@ spec:
       - name: {{.Values.localmaster.volume.name}}
         persistentVolumeClaim:
           claimName: {{.Values.localmaster.volume.persistentVolumeClaimName}}
-     {{- end}}
+      {{- end}}
 

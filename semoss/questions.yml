@@ -459,7 +459,7 @@ questions:
   description: "Use PV for Local Master"
   type: boolean
   label: Use PV for Local Master
-  group: "Local Master Configuration
+  group: "Local Master Configuration"
 - variable: localmaster.volume.name
   default: "lm"
   description: "Enter name for local master volume"
@@ -505,6 +505,12 @@ questions:
   description: "NodePort for for Security"
   type: string
   label: NodePort for for Security
+  group: "Security Configuration"
+- variable: security.volume.useStorage
+  default: true
+  description: "Use PV for Security"
+  type: boolean
+  label: Use PV for Security
   group: "Security Configuration"
 - variable: security.volume.name
   default: "sec"
