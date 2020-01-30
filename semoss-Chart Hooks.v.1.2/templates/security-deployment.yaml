@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s"  .Values.env .Values.security.name}}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s"  .Values.env .Values.security.name}}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-15"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  replicas: {{ .Values.security.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.security.name}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.security.name}}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{printf "%s-%s"  .Values.env .Values.security.name}}
+          image: "{{ .Values.security.image.repository }}:{{ .Values.security.image.tag }}"
+          imagePullPolicy: {{ .Values.security.image.pullPolicy }}
+          ports:
+          - containerPort: {{.Values.security.service.port}}
+          {{- if .Values.security.useStorage}}
+          volumeMounts:
+          - mountPath: /opt/h2-data
+            name:  {{.Values.security.volume.name}}
+          {{- end}}
+      {{- if .Values.security.useStorage}}
+      volumes:
+      - name: {{.Values.security.volume.name}}
+        persistentVolumeClaim:
+          claimName: {{.Values.security.volume.persistentVolumeClaimName}}
+      {{- end}}
