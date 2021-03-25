@@ -7,8 +7,14 @@ questions:
   type: string
   label: Enter Domain Tag
   group: "Domain Configuration"
+- variable: semoss.image.repository
+  default: "semoss/docker"
+  description: "Enter the Semoss image repository"
+  type: string
+  label: SEMOSS Image Repository
+  group: "SEMOSS Configuration"
 - variable: semoss.image.tag
-  default: "3.6.1"
+  default: "4.1.0"
   description: "Enter the SEMOSS image tag"
   type: string
   label: SEMOSS Image Tag
@@ -136,7 +142,7 @@ questions:
   label: Enable anonymous users to upload to SEMOSS
   group: "SEMOSS Security Configuration"
 - variable: semoss.social.setSocial
-  show_if: "semoss.securityOn=true"
+  show_if: "semoss.security.securityOn=true"
   default: false
   description: "Set social properties for SEMOSS"
   type: boolean
@@ -362,7 +368,12 @@ questions:
   label: Recover user R session
   group: "SEMOSS R Configuration"
 
-
+- variable: nginx.image.repository
+  default: "semoss/nginx2"
+  description: "Enter the NGINX image repository"
+  type: string
+  label: NGINX Image Repository
+  group: "NGINX Configuration"
 - variable: nginx.image.tag
   default: "latest"
   description: "Enter the NGINX image tag"
@@ -422,8 +433,27 @@ questions:
   label: Default time period in seconds between liveness checks
   group: "NGINX Configuration"
 
+- variable: zk.image.repository
+  default: "zookeeper"
+  description: "Enter the zookeeper image repository"
+  type: string
+  label: Zookeeper Image Repository
+  group: "Zookeeper Configuration"
+- variable: zk.image.tag
+  default: "3.4.14"
+  description: "Enter the zookeeper image tag"
+  type: string
+  label: Zookeeper Image Tag
+  group: "Zookeeper Configuration"
+
+- variable: localmaster.image.repository
+  default: "oscarfonts/h2"
+  description: "Enter the Security image repository"
+  type: string
+  label: Local Master Image Repository
+  group: "Local Master Configuration"
 - variable: localmaster.image.tag
-  default: "latest"
+  default: "1.4.199"
   description: "Enter the Local Master image tag"
   type: string
   label: Local Master Image Tag
@@ -450,11 +480,11 @@ questions:
 - variable: localmaster.service.nodePort
   show_if: "localmaster.service.type=NodePort"
   default: ""
-  description: "NodePort for for Local Master"
+  description: "NodePort for Local Master"
   type: string
-  label: NodePort for for Local Master
+  label: NodePort for Local Master
   group: "Local Master Configuration"
-- variable: localmaster.volume.useStorage
+- variable: localmaster.useStorage
   default: true
   description: "Use PV for Local Master"
   type: boolean
@@ -473,9 +503,14 @@ questions:
   label: Enter name for local master persistentVolumeClaimName
   group: "Local Master Configuration"
 
-
+- variable: security.image.repository
+  default: "oscarfonts/h2"
+  description: "Enter the Security image repository"
+  type: string
+  label: Security Image Repository
+  group: "Security Configuration"
 - variable: security.image.tag
-  default: "latest"
+  default: "1.4.199"
   description: "Enter the Security image tag"
   type: string
   label: Security Image Tag
@@ -502,11 +537,11 @@ questions:
 - variable: security.service.nodePort
   show_if: "security.service.type=NodePort"
   default: ""
-  description: "NodePort for for Security"
+  description: "NodePort for Security"
   type: string
-  label: NodePort for for Security
+  label: NodePort for Security
   group: "Security Configuration"
-- variable: security.volume.useStorage
+- variable: security.useStorage
   default: true
   description: "Use PV for Security"
   type: boolean
@@ -524,3 +559,115 @@ questions:
   type: string
   label: Enter name for Security persistentVolumeClaimName
   group: "Security Configuration"
+- variable: scheduler.image.repository
+  default: "oscarfonts/h2"
+  description: "Enter the scheduler image repository"
+  type: string
+  label: Scheduler Image Repository
+  group: "Scheduler Configuration"
+- variable: scheduler.image.tag
+  default: "1.4.199"
+  description: "Enter the Scheduler image tag"
+  type: string
+  label: Scheduler Image Tag
+  group: "Scheduler Configuration"
+- variable: scheduler.image.pullPolicy
+  default: "IfNotPresent"
+  description: "Pull Policy for Scheduler"
+  type: enum
+  label: Pull Policy for Scheduler
+  group: "Scheduler Configuration"
+  options:
+  - "Always"
+  - "IfNotPresent"
+  - "Never"
+- variable: scheduler.service.type
+  default: "ClusterIP"
+  description: "Service type for Scheduler"
+  type: enum
+  label: Service type for Scheduler
+  group: "Scheduler Configuration"
+  options:
+  - "ClusterIP"
+  - "NodePort"
+- variable: scheduler.service.nodePort
+  show_if: "scheduler.service.type=NodePort"
+  default: ""
+  description: "NodePort for Scheduler"
+  type: string
+  label: NodePort for Scheduler
+  group: "Scheduler Configuration"
+- variable: scheduler.useStorage
+  default: true
+  description: "Use PV for Scheduler"
+  type: boolean
+  label: Use PV for Scheduler
+  group: "Scheduler Configuration"
+- variable: scheduler.volume.name
+  default: "scheduler"
+  description: "Enter name for Scheduler volume"
+  type: string
+  label: Enter name for Scheduler volume
+  group: "Scheduler Configuration"
+- variable: scheduler.volume.persistentVolumeClaimName
+  default: "schedulerpvc"
+  description: "Enter name for Scheduler persistentVolumeClaim"
+  type: string
+  label: Enter name for Scheduler persistentVolumeClaimName
+  group: "Scheduler Configuration"
+- variable: themes.image.repository
+  default: "oscarfonts/h2"
+  description: "Enter the Themes image repository"
+  type: string
+  label: Themes Image Repository
+  group: "Themes Configuration"
+- variable: themes.image.tag
+  default: "1.4.199"
+  description: "Enter the Themes image tag"
+  type: string
+  label: Themes Image Tag
+  group: "Themes Configuration"
+- variable: themes.image.pullPolicy
+  default: "IfNotPresent"
+  description: "Pull Policy for Themes"
+  type: enum
+  label: Pull Policy for Themes
+  group: "Themes Configuration"
+  options:
+  - "Always"
+  - "IfNotPresent"
+  - "Never"
+- variable: themes.service.type
+  default: "ClusterIP"
+  description: "Service type for Themes"
+  type: enum
+  label: Service type for Themes
+  group: "Themes Configuration"
+  options:
+  - "ClusterIP"
+  - "NodePort"
+- variable: themes.service.nodePort
+  show_if: "security.service.type=NodePort"
+  default: ""
+  description: "NodePort for Themes"
+  type: string
+  label: NodePort for Themes
+  group: "Themes Configuration"
+- variable: themes.useStorage
+  default: true
+  description: "Use PV for Themes"
+  type: boolean
+  label: Use PV for Themes
+  group: "Themes Configuration"
+- variable: themes.volume.name
+  default: "themes"
+  description: "Enter name for Themes volume"
+  type: string
+  label: Enter name for Themes volume
+  group: "Themes Configuration"
+- variable: themes.volume.persistentVolumeClaimName
+  default: "themespvc"
+  description: "Enter name for Themes persistentVolumeClaim"
+  type: string
+  label: Enter name for Themes persistentVolumeClaimName
+  group: "Themes Configuration"

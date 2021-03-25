@@ -144,13 +144,29 @@ localmaster:
   useStorage: false
   nameOverride: ""
   fullnameOverride: ""
-
   service:
     type: ClusterIP
     port: 1521
   volume:
     name: lm
     persistentVolumeClaimName: lmpvc
+
+scheduler:
+  replicaCount: 1
+  name: scheduler
+  image:
+    repository: kunal0137/scheduler
+    tag: latest
+    pullPolicy: IfNotPresent
+  useStorage: false
+  nameOverride: ""
+  fullnameOverride: ""
+  service:
+    type: ClusterIP
+    port: 1521
+  volume:
+    name: scheduler
+    persistentVolumeClaimName: schedulerpvc
 
 themes:
   replicaCount: 1
@@ -159,14 +175,16 @@ themes:
     repository: kunal0137/themes
     tag: latest
     pullPolicy: IfNotPresent
-
   nameOverride: ""
   fullnameOverride: ""
-
   service:
     type: ClusterIP
     port: 1521
-
+  useStorage: false
+  volume:
+    name: themes
+    persistentVolumeClaimName: themespvc
+    
 zk:
   replicaCount: 1
   name: zk

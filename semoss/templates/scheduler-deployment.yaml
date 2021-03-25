@@ -1,0 +1,44 @@
+  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s"  .Values.env .Values.scheduler.name}}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s"  .Values.env .Values.scheduler.name}}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.scheduler.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.scheduler.name}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.scheduler.name}}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{printf "%s-%s"  .Values.env .Values.scheduler.name}}
+          image: "{{ .Values.scheduler.image.repository }}:{{ .Values.scheduler.image.tag }}"
+          imagePullPolicy: {{ .Values.scheduler.image.pullPolicy }}
+          ports:
+          - containerPort: {{.Values.scheduler.service.port}}
+          {{- if .Values.scheduler.useStorage}}
+          command:
+          - /bin/bash
+          args:
+            - -c
+            - if [ ! -f /opt/h2-data/database.mv.db ]; then     echo "Scheduler Databse not found!";     cd /opt/h2-data;     wget https://github.com/SEMOSS/SEMOSS_Config_Databases/raw/master/Scheduler/database.mv.db; fi;java -cp /opt/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 81 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /opt/h2-data
+          volumeMounts:
+          - mountPath: /opt/h2-data
+            name:  {{.Values.scheduler.volume.name}}
+          {{- end}}
+      {{- if .Values.scheduler.useStorage}}
+      volumes:
+      - name: {{.Values.scheduler.volume.name}}
+        persistentVolumeClaim:
+          claimName: {{.Values.scheduler.volume.persistentVolumeClaimName}}
+      {{- end}}

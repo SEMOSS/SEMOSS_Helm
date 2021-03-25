@@ -26,3 +26,19 @@ spec:
           imagePullPolicy: {{ .Values.themes.image.pullPolicy }}
           ports:
           - containerPort: {{.Values.themes.service.port}}
+          {{- if .Values.themes.useStorage}}
+          command:
+          - /bin/bash
+          args:
+            - -c
+            - if [ ! -f /opt/h2-data/database.mv.db ]; then     echo "Security Databse not found!";     cd /opt/h2-data;     wget https://github.com/SEMOSS/SEMOSS_Config_Databases/raw/master/Themes/database.mv.db; fi;java -cp /opt/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 81 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /opt/h2-data
+          volumeMounts:
+          - mountPath: /opt/h2-data
+            name:  {{.Values.themes.volume.name}}
+          {{- end}}
+      {{- if .Values.themes.useStorage}}
+      volumes:
+      - name: {{.Values.themes.volume.name}}
+        persistentVolumeClaim:
+          claimName: {{.Values.themes.volume.persistentVolumeClaimName}}
+      {{- end}}

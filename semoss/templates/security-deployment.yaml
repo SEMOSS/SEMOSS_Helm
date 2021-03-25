@@ -27,6 +27,11 @@ spec:
           ports:
           - containerPort: {{.Values.security.service.port}}
           {{- if .Values.security.useStorage}}
+          command:
+          - /bin/bash
+          args:
+            - -c
+            - if [ ! -f /opt/h2-data/database.mv.db ]; then     echo "Security Databse not found!";     cd /opt/h2-data;     wget https://github.com/SEMOSS/SEMOSS_Config_Databases/raw/master/Security/database.mv.db; fi;java -cp /opt/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 81 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /opt/h2-data
           volumeMounts:
           - mountPath: /opt/h2-data
             name:  {{.Values.security.volume.name}}
