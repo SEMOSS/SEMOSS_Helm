@@ -1,0 +1,20 @@
+{{- if .Values.localmaster.useStorage}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.localmaster.volume.persistentVolumeClaimName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.localmaster.storageSize | quote }}
+{{- if .Values.localmaster.storageClass }}
+{{- if (eq "-" .Values.localmaster.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.localmaster.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}

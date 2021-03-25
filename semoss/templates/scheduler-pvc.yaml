@@ -1,0 +1,20 @@
+{{- if .Values.scheduler.useStorage}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.scheduler.volume.persistentVolumeClaimName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.scheduler.storageSize | quote }}
+{{- if .Values.scheduler.storageClass }}
+{{- if (eq "-" .Values.scheduler.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.scheduler.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}

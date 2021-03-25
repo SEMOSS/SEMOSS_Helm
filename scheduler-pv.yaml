@@ -1,0 +1,22 @@
+{{- if .Values.scheduler.useStorage}}
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ .Values.scheduler.volume.persistentVolumeClaimName }}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s"  .Values.env .Values.scheduler.name}}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes: 
+  - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.scheduler.storageSize | quote }}
+  {{- if .Values.scheduler.storageClass }}
+  storageClassName: {{ .Values.scheduler.storageClass | quote }}
+  {{- else }}
+  storageClassName: ""
+  {{- end }}
+  persistentVolumeReclaimPolicy: {{ .Values.scheduler.volume.persistentVolumeReclaimPolicy }}
+{{- end }}

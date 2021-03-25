@@ -1,0 +1,20 @@
+{{- if .Values.security.useStorage}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.security.volume.persistentVolumeClaimName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.security.storageSize | quote }}
+{{- if .Values.security.storageClass }}
+{{- if (eq "-" .Values.security.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.security.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}

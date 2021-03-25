@@ -5,7 +5,7 @@
 env: "semoss"
 
 semoss:
-  replicaCount: 1
+  replicaCount: 3
   name: semoss
   image:
     repository: semoss/docker
@@ -102,7 +102,6 @@ nginx:
     repository: semoss/nginx2
     tag: latest
     pullPolicy: IfNotPresent
-
   nameOverride: ""
   fullnameOverride: ""
   cookieName: ""
@@ -110,38 +109,41 @@ nginx:
     initialDelaySeconds: 60
     timeoutSeconds: 5
     periodSeconds: 5
-    
   service:
     type: NodePort
     port: 80
-    nodePort: 30100
+    nodePort:
 
 security:
   replicaCount: 1
   name: security
   image:
-    repository: kunal0137/security
-    tag: latest
+    repository: semoss/h2
+    tag: 1.4.200
     pullPolicy: IfNotPresent
-
   nameOverride: ""
   fullnameOverride: ""
-  useStorage: false
+  useStorage: true
+  # storageClass: "-"
+  storageSize: 1Gi
   service:
     type: ClusterIP
     port: 1521
   volume:
     name: sec
-    persistentVolumeClaimName: secpvc
+    persistentVolumeClaimName: security-volume
+    persistentVolumeReclaimPolicy: Retain
 
 localmaster:
   replicaCount: 1
   name: localmaster
   image:
-    repository: kunal0137/localmaster
-    tag: latest
+    repository: semoss/h2
+    tag: 1.4.200
     pullPolicy: IfNotPresent
-  useStorage: false
+  useStorage: true
+  # storageClass: "-"
+  storageSize: 1Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
@@ -149,16 +151,19 @@ localmaster:
     port: 1521
   volume:
     name: lm
-    persistentVolumeClaimName: lmpvc
+    persistentVolumeClaimName: localmaster-volume
+    persistentVolumeReclaimPolicy: Retain
 
 scheduler:
   replicaCount: 1
   name: scheduler
   image:
-    repository: kunal0137/scheduler
-    tag: latest
+    repository: semoss/h2
+    tag: 1.4.200
     pullPolicy: IfNotPresent
-  useStorage: false
+  useStorage: true
+  # storageClass: "-"
+  storageSize: 1Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
@@ -166,25 +171,30 @@ scheduler:
     port: 1521
   volume:
     name: scheduler
-    persistentVolumeClaimName: schedulerpvc
+    persistentVolumeClaimName: scheduler-volume
+    persistentVolumeReclaimPolicy: Retain
 
 themes:
   replicaCount: 1
   name: themes
   image:
-    repository: kunal0137/themes
-    tag: latest
+    repository: semoss/h2
+    tag: 1.4.200
     pullPolicy: IfNotPresent
+  useStorage: true
+  # storageClass: "-"
+  storageSize: 1Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
     type: ClusterIP
     port: 1521
-  useStorage: false
+  useStorage: true
   volume:
     name: themes
-    persistentVolumeClaimName: themespvc
-    
+    persistentVolumeClaimName: themes-volume
+    persistentVolumeReclaimPolicy: Retain
+
 zk:
   replicaCount: 1
   name: zk
