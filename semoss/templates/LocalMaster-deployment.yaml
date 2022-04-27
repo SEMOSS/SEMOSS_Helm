@@ -43,7 +43,6 @@ spec:
       {{- end}}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values}}
-        emptyDir: { .Vaules.imagePullSecrets}
+      - name: {{ .Vaules.imagePullSecrets}}
       {{- end }}
 
