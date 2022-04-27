@@ -4,6 +4,8 @@
 
 env: "semoss"
 
+imagePullSecrets:
+
 semoss:
   replicaCount: 3
   name: semoss

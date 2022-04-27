@@ -42,3 +42,8 @@ spec:
         persistentVolumeClaim:
           claimName: {{.Values.scheduler.volume.persistentVolumeClaimName}}
       {{- end}}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values}}
+        emptyDir: { .Vaules.imagePullSecrets}
+      {{- end }}
