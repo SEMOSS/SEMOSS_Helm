@@ -29,14 +29,14 @@ semoss:
   monolithCookie: "monolith"
   googleAnalytics: ""
   security:
-    securityOn: false
+    securityOn: true
     anonymousUserOn: false
     anonymousUserUploadOn: false
   social:
     setSocial:
     redirectUrl:
-    enable_native_login:
-    enable_native_registration:
+    enable_native_login: "true"
+    enable_native_registration: "true"
     enable_google_login:
     google_client_id:
     google_secret_key:
@@ -58,7 +58,7 @@ semoss:
     ms_scope: "User.Read"
   r:
     r_on: true
-    r_connection_type: "JRI"
+    r_connection_type: "User_Rserve_Dedicated"
     r_pool_size:
     r_user_recovery:
     containerName: "rserve"
@@ -79,42 +79,39 @@ semoss:
     SEMOSS_IS_CLUSTER: ""
     SEMOSS_STORAGE_PROVIDER: ""
     AZCONN: ""
-    SECURITY_ON: "false"
+    SECURITY_ON: "true"
     FILE_UPLOAD_LIMIT: ""
 
 
-  ingress:
-    enabled: false
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    hosts:
-      - host: chart-example.local
-        paths: []
-
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
-
-nginx:
-  replicaCount: 1
-  name: nginx
-  image:
-    repository: semoss/nginx2
-    tag: latest
-    pullPolicy: IfNotPresent
-  nameOverride: ""
-  fullnameOverride: ""
-  cookieName: ""
-  livenessProbe:
-    initialDelaySeconds: 60
-    timeoutSeconds: 5
-    periodSeconds: 5
-  service:
-    type: NodePort
-    port: 80
-    nodePort:
+ingress:
+  name: "ingress"
+  enabled: false
+  #loadBalancerSourceRanges: ["0.0.0.0/0"]
+  #externalPort: 443
+  #internalPort: 80
+  # set up for nginx ingress - if other ingress is used, enable sticky session as appropriate
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+    nginx.ingress.kubernetes.io/session-cookie-name: route-semoss
+    nginx.ingress.kubernetes.io/session-cookie-path: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/app-root: /SemossWeb
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+  tls: []
+  #    - hosts:
+  #        - "my.example.org"
+  #        - "*.test.org"
+  #      secretName: my-tls-sercret
+  hosts:
+    - host: my.example.org
+      paths:
+      - /
+      pathType: ImplementationSpecific
 
 security:
   replicaCount: 1
@@ -127,7 +124,7 @@ security:
   fullnameOverride: ""
   useStorage: true
   # storageClass: "-"
-  storageSize: 1Gi
+  storageSize: 3Gi
   service:
     type: ClusterIP
     port: 1521
@@ -145,7 +142,7 @@ localmaster:
     pullPolicy: IfNotPresent
   useStorage: true
   # storageClass: "-"
-  storageSize: 1Gi
+  storageSize: 3Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
@@ -165,7 +162,7 @@ scheduler:
     pullPolicy: IfNotPresent
   useStorage: true
   # storageClass: "-"
-  storageSize: 1Gi
+  storageSize: 3Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
@@ -185,32 +182,17 @@ themes:
     pullPolicy: IfNotPresent
   useStorage: true
   # storageClass: "-"
-  storageSize: 1Gi
+  storageSize: 3Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
     type: ClusterIP
     port: 1521
-  useStorage: true
   volume:
     name: themes
     persistentVolumeClaimName: themes-volume
     persistentVolumeReclaimPolicy: Retain
 
-zk:
-  replicaCount: 1
-  name: zk
-  image:
-    repository: zookeeper
-    tag: 3.4.14
-    pullPolicy: IfNotPresent
-
-  nameOverride: ""
-  fullnameOverride: ""
-
-  service:
-    type: ClusterIP
-    port: 2181
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
