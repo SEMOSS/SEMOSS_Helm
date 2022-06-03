@@ -11,7 +11,7 @@ helm install semoss .
 ```
 
 
-## Confirguation
+## Configuration
 
 Edit the values.yaml to add options such as enabling ingress and adding the hostname
 
