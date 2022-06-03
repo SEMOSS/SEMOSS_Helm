@@ -7,7 +7,7 @@ env: "semoss"
 imagePullSecrets:
 
 semoss:
-  replicaCount: 3
+  replicaCount: 1
   name: semoss
   image:
     repository: semoss/docker
@@ -15,12 +15,12 @@ semoss:
     pullPolicy: IfNotPresent
   
   readinessProbe:
-    turnOn: true
+    turnOn: false
     initialDelaySeconds: 60
     timeoutSeconds: 5
     periodSeconds: 5
   livenessProbe:
-    turnOn: true
+    turnOn: false
     initialDelaySeconds: 60
     timeoutSeconds: 5
     periodSeconds: 5
@@ -74,9 +74,11 @@ semoss:
   environmentVariables:
     AZURE_ACCT_KEY: ""
     AZURE_ACCT_NAME: ""
-    AWS_REGION: ""
-    AWS_BUCKET: ""
-    SEMOSS_IS_CLUSTER: ""
+    S3_REGION: ""
+    S3_BUCKET: ""
+    S3_ACCESS_KEY: ""
+    S3_SECRET_KEY: ""
+    SEMOSS_IS_CLUSTER: "true"
     SEMOSS_STORAGE_PROVIDER: ""
     AZCONN: ""
     SECURITY_ON: "true"
@@ -86,9 +88,6 @@ semoss:
 ingress:
   name: "ingress"
   enabled: true
-  #loadBalancerSourceRanges: ["0.0.0.0/0"]
-  #externalPort: 443
-  #internalPort: 80
   # set up for nginx ingress - if other ingress is used, enable sticky session as appropriate
   annotations:
     kubernetes.io/ingress.class: "nginx"
@@ -111,7 +110,6 @@ ingress:
     - host: my.example.org
       paths:
       - /
-      pathType: ImplementationSpecific
 
 security:
   replicaCount: 1
