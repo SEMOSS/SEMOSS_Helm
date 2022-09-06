@@ -46,7 +46,7 @@ spec:
           - /bin/bash
           args:
             - -c
-            - echo export REMOTE_SECURITY_IP=$REMOTE_SECURITY_KEY  >> ~/.bashrc; echo export REMOTE_LOCALMASTER_IP=$REMOTE_LOCALMASTER_KEY  >> ~/.bashrc; echo export REMOTE_SCHEDULER_IP=$REMOTE_SCHEDULER_KEY  >> ~/.bashrc; echo export REMOTE_THEMES_IP=$REMOTE_THEMES_KEY  >> ~/.bashrc; echo export HOST=$POD_IP:8080 >> ~/.bashrc; source ~/.bashrc; git reset --hard; git pull; chmod 777 *; /opt/semoss-artifacts/artifacts/scripts/runCS.sh
+            - echo export REMOTE_SECURITY_IP=$REMOTE_SECURITY_KEY  >> ~/.bashrc; echo export REMOTE_LOCALMASTER_IP=$REMOTE_LOCALMASTER_KEY  >> ~/.bashrc; echo export REMOTE_SCHEDULER_IP=$REMOTE_SCHEDULER_KEY  >> ~/.bashrc; echo export REMOTE_THEMES_IP=$REMOTE_THEMES_KEY  >> ~/.bashrc; echo export REMOTE_USERTRACKING_IP=$REMOTE_USERTRACKING_KEY  >> ~/.bashrc; echo export HOST=$POD_IP:8080 >> ~/.bashrc; source ~/.bashrc; git reset --hard; git pull; chmod 777 *; /opt/semoss-artifacts/artifacts/scripts/runCS.sh
           env: 
           - name: REMOTE_SECURITY_KEY
             value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "SECURITY_SERVICE_HOST" "$" .Values.env "SECURITY_SERVICE_PORT" | upper}}
@@ -56,6 +56,8 @@ spec:
             value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "SCHEDULER_SERVICE_HOST" "$" .Values.env "SCHEDULER_SERVICE_PORT" | upper}}
           - name: REMOTE_THEMES_KEY
             value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "THEMES_SERVICE_HOST" "$" .Values.env "THEMES_SERVICE_PORT" | upper}}
+          - name: REMOTE_USERTRACKING_KEY
+            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "USERTRACKING_SERVICE_HOST" "$" .Values.env "USERTRACKING_SERVICE_PORT" | upper}}
           - name: REMOTE_SECURITY
             value: "true"
           - name: REMOTE_LOCALMASTER
@@ -64,7 +66,10 @@ spec:
             value: "true"
           - name: REMOTE_THEMES
             value: "true"
-
+          - name: REMOTE_USERTRACKING
+            value: "true"
+          - name: USER_TRACKING_ENABLED
+            value: {{quote .Values.usertracking.enabled }}
           {{- if .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT  }}
           - name: FILE_UPLOAD_LIMIT
             value: {{quote .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT }}

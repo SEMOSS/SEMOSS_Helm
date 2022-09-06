@@ -160,7 +160,7 @@ scheduler:
     pullPolicy: IfNotPresent
   useStorage: true
   # storageClass: "-"
-  storageSize: 3Gi
+  storageSize: 2Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
@@ -180,7 +180,7 @@ themes:
     pullPolicy: IfNotPresent
   useStorage: true
   # storageClass: "-"
-  storageSize: 3Gi
+  storageSize: 1Gi
   nameOverride: ""
   fullnameOverride: ""
   service:
@@ -189,6 +189,27 @@ themes:
   volume:
     name: themes
     persistentVolumeClaimName: themes-volume
+    persistentVolumeReclaimPolicy: Retain
+
+usertracking:
+  enabled: true
+  replicaCount: 1
+  name: usertracking
+  image:
+    repository: semoss/h2
+    tag: 1.4.200
+    pullPolicy: IfNotPresent
+  useStorage: true
+  # storageClass: "-"
+  storageSize: 3Gi
+  nameOverride: ""
+  fullnameOverride: ""
+  service:
+    type: ClusterIP
+    port: 1521
+  volume:
+    name: usertracking
+    persistentVolumeClaimName: usertracking-volume
     persistentVolumeReclaimPolicy: Retain
 
 

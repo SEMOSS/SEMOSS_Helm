@@ -1,0 +1,49 @@
+  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s"  .Values.env .Values.usertracking.name}}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s"  .Values.env .Values.usertracking.name}}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.usertracking.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.usertracking.name}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{printf "%s-%s"  .Values.env .Values.usertracking.name}}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{printf "%s-%s"  .Values.env .Values.usertracking.name}}
+          image: "{{ .Values.usertracking.image.repository }}:{{ .Values.usertracking.image.tag }}"
+          imagePullPolicy: {{ .Values.usertracking.image.pullPolicy }}
+          ports:
+          - containerPort: {{.Values.usertracking.service.port}}
+          {{- if .Values.usertracking.useStorage}}
+          command:
+          - /bin/bash
+          args:
+            - -c
+            - if [ ! -f /opt/h2-data/databaseNewUserTracking.mv.db ]; then     echo "usertracking Databse not found!";     cd /opt/h2-data;     wget https://github.com/SEMOSS/SEMOSS_Config_Databases/raw/master/usertracking/databaseNewUserTracking.mv.db; fi;java -cp /opt/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 81 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /opt/h2-data
+          volumeMounts:
+          - mountPath: /opt/h2-data
+            name:  {{.Values.usertracking.volume.name}}
+          {{- end}}
+      {{- if .Values.usertracking.useStorage}}
+      volumes:
+      - name: {{.Values.usertracking.volume.name}}
+        persistentVolumeClaim:
+          claimName: {{.Values.usertracking.volume.persistentVolumeClaimName}}
+      {{- end}}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values}}
+        emptyDir: { .Vaules.imagePullSecrets}
+      {{- end }}

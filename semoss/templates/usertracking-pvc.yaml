@@ -1,0 +1,20 @@
+{{- if .Values.usertracking.useStorage}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.usertracking.volume.persistentVolumeClaimName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.usertracking.storageSize | quote }}
+{{- if .Values.usertracking.storageClass }}
+{{- if (eq "-" .Values.usertracking.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.usertracking.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
