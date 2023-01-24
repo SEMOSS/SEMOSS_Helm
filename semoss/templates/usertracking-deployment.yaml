@@ -31,7 +31,7 @@ spec:
           - /bin/bash
           args:
             - -c
-            - if [ ! -f /opt/h2-data/databaseNewUserTracking.mv.db ]; then     echo "usertracking Databse not found!";     cd /opt/h2-data;     wget https://github.com/SEMOSS/SEMOSS_Config_Databases/raw/master/usertracking/databaseNewUserTracking.mv.db; fi;java -cp /opt/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 81 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /opt/h2-data
+            - if [ ! -f /opt/h2-data/databaseNewUserTracking.mv.db ]; then     echo "usertracking Databse not found!";     cd /opt/h2-data;     wget https://github.com/SEMOSS/SEMOSS_Config_Databases/raw/master/UserTracking/databaseNewUserTracking.mv.db; fi;java -cp /opt/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 81 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /opt/h2-data
           volumeMounts:
           - mountPath: /opt/h2-data
             name:  {{.Values.usertracking.volume.name}}
