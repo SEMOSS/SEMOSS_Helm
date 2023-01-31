@@ -15,12 +15,12 @@ semoss:
     pullPolicy: IfNotPresent
   
   readinessProbe:
-    turnOn: false
+    turnOn: true
     initialDelaySeconds: 60
     timeoutSeconds: 5
     periodSeconds: 5
   livenessProbe:
-    turnOn: false
+    turnOn: true
     initialDelaySeconds: 60
     timeoutSeconds: 5
     periodSeconds: 5
