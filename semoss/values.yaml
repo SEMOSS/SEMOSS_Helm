@@ -65,6 +65,11 @@ semoss:
     image:
       repository: semoss/docker
       tag: "latest"
+  chroot:
+    chroot_enable: false
+    chroot_debootstrap_dir:
+    chroot_dir:
+    chroot_sudo:
     
   service:
     type: ClusterIP
