@@ -258,6 +258,26 @@ spec:
             value: {{ .Values.semoss.googleAnalytics }}
           {{- end }}
 
+          {{- if .Values.semoss.chroot.chroot_enable  }}
+          - name: CHROOT_ENABLE
+            value: {{ .Values.semoss.chroot.chroot_enable }}
+          {{- end }}
+
+          {{- if .Values.semoss.chroot.chroot_debootstrap_dir  }}
+          - name: CHROOT_DEBOOTSTRAP_DIR
+            value: {{ .Values.semoss.chroot.chroot_debootstrap_dir  }}
+          {{- end }}
+          
+          {{- if .Values.semoss.chroot_dir  }}
+          - name: CHROOT_DIR
+            value: {{ .Values.semoss.chroot_dir }}
+          {{- end }}
+          
+           {{- if.Values.semoss.chroot_sudo  }}
+          - name: CHROOT_SUDO
+            value: {{ .Values.semoss.chroot_sudo }}
+          {{- end }}
+          
           - name: POD_IP
             valueFrom:
              fieldRef:
