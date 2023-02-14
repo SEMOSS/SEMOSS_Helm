@@ -266,30 +266,16 @@ spec:
 
           ports:
           - containerPort: {{.Values.semoss.service.port}}
-          {{- if eq .Values.semoss.r.r_connection_type "User_Rserve_Single" }}
+          {{- if .Values.semoss.chroot.chroot_enable  }}
           volumeMounts:
-          - name: rtemp
-            mountPath: /opt/semosshome/R/Temp
-          - name: csvinsights
-            mountPath: /opt/semosshome/InsightCache/
+          - name: chroot
+            mountPath: {{.Values.semoss.chroot.chroot_debootstrap_dir }} 
           {{- end }}
-        {{- if eq .Values.semoss.r.r_connection_type "User_Rserve_Single" }}
-        - name: {{printf "%s-%s"  .Values.env .Values.semoss.r.containerName}}
-          image: "{{ .Values.semoss.r.image.repository }}:{{ .Values.semoss.r.image.tag }}"
-          imagePullPolicy: {{ .Values.semoss.image.pullPolicy }}
-          command: ["/usr/lib/R/bin/Rserve.dbg"]
-          args: ["--vanilla"]
-          volumeMounts:
-          - name: rtemp
-            mountPath: /opt/semosshome/R/Temp
-          - name: csvinsights
-            mountPath: /opt/semosshome/InsightCache/
-        {{- end }}
-      {{- if eq .Values.semoss.r.r_connection_type "User_Rserve_Single" }}
+      {{{- if .Values.semoss.chroot.chroot_enable   }}
       volumes:
-      - name: rtemp
-        emptyDir: {}
-      - name: csvinsights
+      - name: chroot
+        persistentVolumeClaim:
+          claimName: chroot
       {{- end }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
