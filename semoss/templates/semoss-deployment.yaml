@@ -291,7 +291,7 @@ spec:
           - name: chroot
             mountPath: {{.Values.semoss.chroot.chroot_debootstrap_dir }} 
           {{- end }}
-      {{{- if .Values.semoss.chroot.chroot_enable   }}
+      {{- if .Values.semoss.chroot.chroot_enable   }}
       volumes:
       - name: chroot
         persistentVolumeClaim:
