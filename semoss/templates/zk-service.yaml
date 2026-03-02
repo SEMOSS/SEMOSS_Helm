@@ -1,0 +1,20 @@
+{{- if .Values.zookeeper.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-%s" .Values.env .Values.zookeeper.name }}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.zookeeper.name }}
+    helm.sh/chart: {{ include "semoss.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.zookeeper.service.type }}
+  ports:
+    - port: {{ .Values.zookeeper.service.port }}
+      targetPort: {{ .Values.zookeeper.service.port }}
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.zookeeper.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

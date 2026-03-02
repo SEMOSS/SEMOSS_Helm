@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
-
   labels:
     app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
     helm.sh/chart: {{ include "semoss.chart" . }}
@@ -10,6 +9,8 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.semoss.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
@@ -17,287 +18,476 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{printf "%s-%s" .Values.env .Values.semoss.name }}
+        app.kubernetes.io/name: {{ printf "%s-%s" .Values.env .Values.semoss.name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.semoss.serviceAccount.name }}
+      serviceAccountName: {{ .Values.semoss.serviceAccount.name }}
+      {{- end }}
+      {{- if .Values.semoss.podSecurityContext }}
+      securityContext:
+        runAsUser: {{ .Values.semoss.podSecurityContext.runAsUser }}
+        fsGroup: {{ .Values.semoss.podSecurityContext.fsGroup }}
+        seccompProfile:
+          type: RuntimeDefault
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.semoss.image.repository }}:{{ .Values.semoss.image.tag }}"
           imagePullPolicy: {{ .Values.semoss.image.pullPolicy }}
-          {{- if .Values.semoss.readinessProbe.turnOn}}
-          readinessProbe:
-           httpGet:
-            path: /Monolith/api/config
-            port: 8080
-           initialDelaySeconds: {{ .Values.semoss.readinessProbe.initialDelaySeconds }}
-           timeoutSeconds: {{ .Values.semoss.readinessProbe.timeoutSeconds }}
-           periodSeconds: {{ .Values.semoss.readinessProbe.periodSeconds }}
-          {{- end }}
-          {{- if .Values.semoss.livenessProbe.turnOn}}
-          livenessProbe:
-           httpGet:
-            path: /Monolith/api/config
-            port: 8080
-           initialDelaySeconds: {{ .Values.semoss.livenessProbe.initialDelaySeconds }}
-           timeoutSeconds: {{ .Values.semoss.livenessProbe.timeoutSeconds }}
-           periodSeconds: {{ .Values.semoss.livenessProbe.periodSeconds }}
-          {{- end }}
           command:
-          - /bin/bash
+            - /bin/bash
           args:
             - -c
-            - echo export REMOTE_SECURITY_IP=$REMOTE_SECURITY_KEY  >> ~/.bashrc; echo export REMOTE_LOCALMASTER_IP=$REMOTE_LOCALMASTER_KEY  >> ~/.bashrc; echo export REMOTE_SCHEDULER_IP=$REMOTE_SCHEDULER_KEY  >> ~/.bashrc; echo export REMOTE_THEMES_IP=$REMOTE_THEMES_KEY  >> ~/.bashrc; echo export REMOTE_USERTRACKING_IP=$REMOTE_USERTRACKING_KEY  >> ~/.bashrc; echo export HOST=$POD_IP:8080 >> ~/.bashrc; source ~/.bashrc; git reset --hard; git pull; chmod 777 *; /opt/semoss-artifacts/artifacts/scripts/runCS.sh
-          env: 
-          - name: REMOTE_SECURITY_KEY
-            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "SECURITY_SERVICE_HOST" "$" .Values.env "SECURITY_SERVICE_PORT" | upper}}
-          - name: REMOTE_LOCALMASTER_KEY
-            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "LOCALMASTER_SERVICE_HOST" "$" .Values.env "LOCALMASTER_SERVICE_PORT" | upper}}
-          - name: REMOTE_SCHEDULER_KEY
-            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "SCHEDULER_SERVICE_HOST" "$" .Values.env "SCHEDULER_SERVICE_PORT" | upper}}
-          - name: REMOTE_THEMES_KEY
-            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "THEMES_SERVICE_HOST" "$" .Values.env "THEMES_SERVICE_PORT" | upper}}
-          - name: REMOTE_USERTRACKING_KEY
-            value: {{printf "%s%s_%s:%s%s_%s" "$" .Values.env "USERTRACKING_SERVICE_HOST" "$" .Values.env "USERTRACKING_SERVICE_PORT" | upper}}
-          - name: REMOTE_SECURITY
-            value: "true"
-          - name: REMOTE_LOCALMASTER
-            value: "true"
-          - name: REMOTE_SCHEDULER
-            value: "true"
-          - name: REMOTE_THEMES
-            value: "true"
-          - name: REMOTE_USERTRACKING
-            value: "true"
-          - name: USER_TRACKING_ENABLED
-            value: {{quote .Values.usertracking.enabled }}
-          {{- if .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT  }}
-          - name: FILE_UPLOAD_LIMIT
-            value: {{quote .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT }}
+            - runCS.sh
+          securityContext:
+            capabilities:
+              drop:
+                - NET_RAW
+          {{- if .Values.semoss.resources }}
+          resources:
+            {{- toYaml .Values.semoss.resources | nindent 12 }}
           {{- end }}
-          
-          {{- if .Values.semoss.environmentVariables.SEMOSS_IS_CLUSTER  }}
-          - name: SEMOSS_IS_CLUSTER
-            value: {{quote .Values.semoss.environmentVariables.SEMOSS_IS_CLUSTER }}
+          {{- if .Values.semoss.readinessProbe.turnOn }}
+          readinessProbe:
+            httpGet:
+              path: /Monolith/api/config
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.semoss.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.semoss.readinessProbe.timeoutSeconds }}
+            periodSeconds: {{ .Values.semoss.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.semoss.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.semoss.readinessProbe.successThreshold }}
           {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.AZCONN  }}
-          - name: AZCONN
-            value: {{quote .Values.semoss.environmentVariables.AZCONN }}
+          {{- if .Values.semoss.livenessProbe.turnOn }}
+          livenessProbe:
+            httpGet:
+              path: /Monolith/api/config
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.semoss.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.semoss.livenessProbe.timeoutSeconds }}
+            periodSeconds: {{ .Values.semoss.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.semoss.livenessProbe.failureThreshold }}
+            successThreshold: {{ .Values.semoss.livenessProbe.successThreshold }}
           {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER  }}
-          - name: SEMOSS_STORAGE_PROVIDER
-            value: {{ .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER }}
-          {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.AZURE_ACCT_NAME  }}
-          - name: AZURE_ACCT_NAME
-            value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_NAME }}
-          {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.AZURE_ACCT_KEY  }}
-          - name: AZURE_ACCT_KEY
-            value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_KEY }}
-          {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.S3_REGION  }}
-          - name: S3_REGION
-            value: {{ .Values.semoss.environmentVariables.S3_REGION }}
-          {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.S3_BUCKET  }}
-          - name: S3_BUCKET
-            value: {{ .Values.semoss.environmentVariables.S3_BUCKET }}
-          {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.S3_ACCESS_KEY  }}
-          - name: S3_ACCESS_KEY
-            value: {{ .Values.semoss.environmentVariables.S3_ACCESS_KEY }}
-          {{- end }}
-
-          {{- if .Values.semoss.environmentVariables.S3_SECRET_KEY  }}
-          - name: S3_SECRET_KEY
-            value: {{ .Values.semoss.environmentVariables.S3_SECRET_KEY }}
-          {{- end }}
-
-          {{- if .Values.semoss.security.securityOn  }}
-          - name: SECURITY_ON
-            value: {{quote .Values.semoss.security.securityOn }}
-          {{- end }}
-
-          {{- if .Values.semoss.security.anonymousUserOn  }}
-          - name: ANONYMOUS_USERS
-            value: {{quote .Values.semoss.security.anonymousUserOn }}
-          {{- end }}
-
-          {{- if .Values.semoss.security.anonymousUserUploadOn  }}
-          - name: ANONYMOUS_USER_UPLOAD
-            value: {{quote .Values.semoss.security.anonymousUserUploadOn }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.setSocial  }}
-          - name: SETSOCIAL
-            value: {{quote .Values.semoss.social.setSocial }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.redirectUrl  }}
-          - name: REDIRECT
-            value: {{quote .Values.semoss.social.redirectUrl }}
-          {{- end }}
-
-
-          {{- if .Values.semoss.social.enable_native_login  }}
-          - name: ENABLE_NATIVE
-            value: {{quote .Values.semoss.social.enable_native_login }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.enable_native_registration  }}
-          - name: ENABLE_NATIVE_REGISTRATION
-            value: {{quote .Values.semoss.social.enable_native_registration }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.enable_google_login  }}
-          - name: ENABLE_GOOGLE
-            value: {{quote .Values.semoss.social.enable_google_login }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.google_client_id  }}
-          - name: GOOGLE_CLIENT_ID
-            value: {{quote .Values.semoss.social.google_client_id }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.google_secret_key  }}
-          - name: GOOGLE_SECRET_KEY
-            value: {{quote .Values.semoss.social.google_secret_key }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.google_redirect_uri  }}
-          - name: GOOGLE_REDIRECT
-            value: {{quote .Values.semoss.social.google_redirect_uri }}
-          {{- end }}
-
-
-          {{- if .Values.semoss.social.enable_github_login  }}
-          - name: ENABLE_GITHUB
-            value: {{quote .Values.semoss.social.enable_github_login }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.github_client_id  }}
-          - name: GITHUB_CLIENT_ID
-            value: {{quote .Values.semoss.social.github_client_id }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.github_secret_key  }}
-          - name: GITHUB_SECRET_KEY
-            value: {{quote .Values.semoss.social.github_secret_key }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.github_redirect_uri  }}
-          - name: GITHUB_REDIRECT
-            value: {{quote .Values.semoss.social.github_redirect_uri }}
-          {{- end }}
-
-
-          {{- if .Values.semoss.social.enable_ms_login  }}
-          - name: ENABLE_MS
-            value: {{quote .Values.semoss.social.enable_ms_login }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.ms_authority  }}
-          - name: MS_AUTHORITY
-            value: {{quote .Values.semoss.social.ms_authority }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.ms_tenant  }}
-          - name: MS_TENANT
-            value: {{quote .Values.semoss.social.ms_tenant }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.ms_client_id  }}
-          - name: MS_CLIENT_ID
-            value: {{quote .Values.semoss.social.ms_client_id }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.ms_secret_key  }}
-          - name: MS_SECRET_KEY
-            value: {{quote .Values.semoss.social.ms_secret_key }}
-          {{- end }}
-
-          {{- if .Values.semoss.social.ms_redirect_uri  }}
-          - name: MS_REDIRECT
-            value: {{quote .Values.semoss.social.ms_redirect_uri }}
-          {{- end }}
-
-          {{- if .Values.semoss.r.r_on  }}
-          - name: R_ON
-            value: {{quote .Values.semoss.r.r_on }}
-          {{- end }}
-
-          {{- if .Values.semoss.r.r_connection_type  }}
-          - name: R_CONNECTION_TYPE
-            value: {{quote .Values.semoss.r.r_connection_type }}
-          {{- end }}
-
-          {{- if .Values.semoss.r.r_pool_size  }}
-          - name: RSERVE_CONNECTION_POOL_SIZE
-            value: {{quote .Values.semoss.r.r_pool_size }}
-          {{- end }}
-
-          {{- if .Values.semoss.r.r_user_recovery  }}
-          - name: R_USER_RECOVERY
-            value: {{quote .Values.semoss.r.r_user_recovery }}
-          {{- end }}
-          
-          {{- if .Values.semoss.monolithCookie  }}
-          - name: MONOLITH_COOKIE
-            value: {{ .Values.semoss.monolithCookie }}
-          {{- end }}
-
-          {{- if .Values.semoss.googleAnalytics  }}
-          - name: GOOGLE_ANALYTICS_ID
-            value: {{ .Values.semoss.googleAnalytics }}
-          {{- end }}
-
-          {{- if .Values.semoss.chroot.chroot_enable  }}
-          - name: CHROOT_ENABLE
-            value: {{ .Values.semoss.chroot.chroot_enable }}
-          {{- end }}
-
-          {{- if .Values.semoss.chroot.chroot_debootstrap_dir  }}
-          - name: CHROOT_DEBOOTSTRAP_DIR
-            value: {{ .Values.semoss.chroot.chroot_debootstrap_dir  }}
-          {{- end }}
-          
-          {{- if .Values.semoss.chroot_dir  }}
-          - name: CHROOT_DIR
-            value: {{ .Values.semoss.chroot_dir }}
-          {{- end }}
-          
-           {{- if.Values.semoss.chroot_sudo  }}
-          - name: CHROOT_SUDO
-            value: {{ .Values.semoss.chroot_sudo }}
-          {{- end }}
-          
-          - name: POD_IP
-            valueFrom:
-             fieldRef:
-               apiVersion: v1
-               fieldPath: status.podIP
-
           ports:
-          - containerPort: {{.Values.semoss.service.port}}
-          {{- if .Values.semoss.chroot.chroot_enable  }}
-          volumeMounts:
-          - name: chroot
-            mountPath: {{.Values.semoss.chroot.chroot_debootstrap_dir }} 
-          {{- end }}
-      {{- if .Values.semoss.chroot.chroot_enable   }}
-      volumes:
-      - name: chroot
-        persistentVolumeClaim:
-          claimName: chroot
-      {{- end }}
+            - containerPort: {{ .Values.semoss.service.port }}
+              protocol: TCP
+          env:
+
+            # --- Pod Identity ---
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: HOST_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+
+            # --- Security DB ---
+            {{- if .Values.security.customDb.connectionUrl }}
+            - name: CUSTOM_SECURITY_DRIVER
+              value: {{ .Values.security.customDb.driver | quote }}
+            - name: CUSTOM_SECURITY_RDBMS_TYPE
+              value: {{ .Values.security.customDb.rdbmsType | quote }}
+            - name: CUSTOM_SECURITY_USERNAME
+              value: {{ .Values.security.customDb.username | quote }}
+            - name: CUSTOM_SECURITY_PASSWORD
+              value: {{ .Values.security.customDb.password | quote }}
+            - name: CUSTOM_SECURITY_SCHEMA
+              value: {{ .Values.security.customDb.schema | quote }}
+            - name: CUSTOM_SECURITY_DATABASE
+              value: {{ .Values.security.customDb.database | quote }}
+            - name: CUSTOM_SECURITY_CONNECTION_URL
+              value: {{ .Values.security.customDb.connectionUrl | quote }}
+            {{- else }}
+            - name: REMOTE_SECURITY
+              value: "true"
+            - name: REMOTE_SECURITY_IP
+              value: "{{ printf "%s-%s" .Values.env .Values.security.name }}:{{ .Values.security.service.port }}"
+            {{- end }}
+
+            # --- Local Master DB ---
+            {{- if .Values.localmaster.customDb.connectionUrl }}
+            - name: CUSTOM_LM_DRIVER
+              value: {{ .Values.localmaster.customDb.driver | quote }}
+            - name: CUSTOM_LM_RDBMS_TYPE
+              value: {{ .Values.localmaster.customDb.rdbmsType | quote }}
+            - name: CUSTOM_LM_USERNAME
+              value: {{ .Values.localmaster.customDb.username | quote }}
+            - name: CUSTOM_LM_PASSWORD
+              value: {{ .Values.localmaster.customDb.password | quote }}
+            - name: CUSTOM_LM_SCHEMA
+              value: {{ .Values.localmaster.customDb.schema | quote }}
+            - name: CUSTOM_LM_DATABASE
+              value: {{ .Values.localmaster.customDb.database | quote }}
+            - name: CUSTOM_LM_CONNECTION_URL
+              value: {{ .Values.localmaster.customDb.connectionUrl | quote }}
+            {{- else }}
+            - name: REMOTE_LOCALMASTER
+              value: "true"
+            - name: REMOTE_LOCALMASTER_IP
+              value: "{{ printf "%s-%s" .Values.env .Values.localmaster.name }}:{{ .Values.localmaster.service.port }}"
+            {{- end }}
+
+            # --- Scheduler DB ---
+            {{- if .Values.scheduler.customDb.connectionUrl }}
+            - name: CUSTOM_SCHEDULER_DRIVER
+              value: {{ .Values.scheduler.customDb.driver | quote }}
+            - name: CUSTOM_SCHEDULER_RDBMS_TYPE
+              value: {{ .Values.scheduler.customDb.rdbmsType | quote }}
+            - name: CUSTOM_SCHEDULER_USERNAME
+              value: {{ .Values.scheduler.customDb.username | quote }}
+            - name: CUSTOM_SCHEDULER_PASSWORD
+              value: {{ .Values.scheduler.customDb.password | quote }}
+            - name: CUSTOM_SCHEDULER_SCHEMA
+              value: {{ .Values.scheduler.customDb.schema | quote }}
+            - name: CUSTOM_SCHEDULER_DATABASE
+              value: {{ .Values.scheduler.customDb.database | quote }}
+            - name: CUSTOM_SCHEDULER_CONNECTION_URL
+              value: {{ .Values.scheduler.customDb.connectionUrl | quote }}
+            {{- else }}
+            - name: REMOTE_SCHEDULER
+              value: "true"
+            - name: REMOTE_SCHEDULER_IP
+              value: "{{ printf "%s-%s" .Values.env .Values.scheduler.name }}:{{ .Values.scheduler.service.port }}"
+            {{- end }}
+
+            # --- Themes DB ---
+            {{- if .Values.themes.customDb.connectionUrl }}
+            - name: CUSTOM_THEMES_DRIVER
+              value: {{ .Values.themes.customDb.driver | quote }}
+            - name: CUSTOM_THEMES_RDBMS_TYPE
+              value: {{ .Values.themes.customDb.rdbmsType | quote }}
+            - name: CUSTOM_THEMES_USERNAME
+              value: {{ .Values.themes.customDb.username | quote }}
+            - name: CUSTOM_THEMES_PASSWORD
+              value: {{ .Values.themes.customDb.password | quote }}
+            - name: CUSTOM_THEMES_SCHEMA
+              value: {{ .Values.themes.customDb.schema | quote }}
+            - name: CUSTOM_THEMES_DATABASE
+              value: {{ .Values.themes.customDb.database | quote }}
+            - name: CUSTOM_THEMES_CONNECTION_URL
+              value: {{ .Values.themes.customDb.connectionUrl | quote }}
+            {{- else }}
+            - name: REMOTE_THEMES
+              value: "true"
+            - name: REMOTE_THEMES_IP
+              value: "{{ printf "%s-%s" .Values.env .Values.themes.name }}:{{ .Values.themes.service.port }}"
+            {{- end }}
+
+            # --- User Tracking DB ---
+            {{- if .Values.usertracking.customDb.connectionUrl }}
+            - name: CUSTOM_USER_TRACKING_DRIVER
+              value: {{ .Values.usertracking.customDb.driver | quote }}
+            - name: CUSTOM_USER_TRACKING_RDBMS_TYPE
+              value: {{ .Values.usertracking.customDb.rdbmsType | quote }}
+            - name: CUSTOM_USER_TRACKING_USERNAME
+              value: {{ .Values.usertracking.customDb.username | quote }}
+            - name: CUSTOM_USER_TRACKING_PASSWORD
+              value: {{ .Values.usertracking.customDb.password | quote }}
+            - name: CUSTOM_USER_TRACKING_SCHEMA
+              value: {{ .Values.usertracking.customDb.schema | quote }}
+            - name: CUSTOM_USER_TRACKING_DATABASE
+              value: {{ .Values.usertracking.customDb.database | quote }}
+            - name: CUSTOM_USER_TRACKING_CONNECTION_URL
+              value: {{ .Values.usertracking.customDb.connectionUrl | quote }}
+            {{- else }}
+            - name: REMOTE_USERTRACKING
+              value: "true"
+            - name: REMOTE_USERTRACKING_IP
+              value: "{{ printf "%s-%s" .Values.env .Values.usertracking.name }}:{{ .Values.usertracking.service.port }}"
+            {{- end }}
+            - name: USER_TRACKING_ENABLED
+              value: {{ .Values.usertracking.enabled | quote }}
+
+            # --- Model Inference Logs DB ---
+            {{- if .Values.modelInferenceLogs.enabled }}
+            - name: MODEL_INFERENCE_LOGS_ENABLED
+              value: "true"
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_DRIVER
+              value: {{ .Values.modelInferenceLogs.customDb.driver | quote }}
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_RDBMS_TYPE
+              value: {{ .Values.modelInferenceLogs.customDb.rdbmsType | quote }}
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_USERNAME
+              value: {{ .Values.modelInferenceLogs.customDb.username | quote }}
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_PASSWORD
+              value: {{ .Values.modelInferenceLogs.customDb.password | quote }}
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_SCHEMA
+              value: {{ .Values.modelInferenceLogs.customDb.schema | quote }}
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_DATABASE
+              value: {{ .Values.modelInferenceLogs.customDb.database | quote }}
+            - name: CUSTOM_MODEL_INFERENCE_LOGS_CONNECTION_URL
+              value: {{ .Values.modelInferenceLogs.customDb.connectionUrl | quote }}
+            {{- end }}
+
+            # --- Prompt Hub DB ---
+            {{- if .Values.promptHub.enabled }}
+            - name: PROMPT_DB_ENABLED
+              value: "true"
+            - name: CUSTOM_PROMPT_DRIVER
+              value: {{ .Values.promptHub.customDb.driver | quote }}
+            - name: CUSTOM_PROMPT_RDBMS_TYPE
+              value: {{ .Values.promptHub.customDb.rdbmsType | quote }}
+            - name: CUSTOM_PROMPT_USERNAME
+              value: {{ .Values.promptHub.customDb.username | quote }}
+            - name: CUSTOM_PROMPT_PASSWORD
+              value: {{ .Values.promptHub.customDb.password | quote }}
+            - name: CUSTOM_PROMPTS_SCHEMA
+              value: {{ .Values.promptHub.customDb.schema | quote }}
+            - name: CUSTOM_PROMPT_DATABASE
+              value: {{ .Values.promptHub.customDb.database | quote }}
+            - name: CUSTOM_PROMPT_CONNECTION_URL
+              value: {{ .Values.promptHub.customDb.connectionUrl | quote }}
+            {{- end }}
+
+            # --- Auth & Security Settings ---
+            - name: SECURITY_ON
+              value: {{ .Values.semoss.security.securityOn | quote }}
+            {{- if .Values.semoss.security.anonymousUserOn }}
+            - name: ANONYMOUS_USERS
+              value: {{ .Values.semoss.security.anonymousUserOn | quote }}
+            {{- end }}
+            {{- if .Values.semoss.security.anonymousUserUploadOn }}
+            - name: ANONYMOUS_USER_UPLOAD
+              value: {{ .Values.semoss.security.anonymousUserUploadOn | quote }}
+            {{- end }}
+
+            # --- Social / SSO ---
+            {{- if .Values.semoss.social.setSocial }}
+            - name: SETSOCIAL
+              value: {{ .Values.semoss.social.setSocial | quote }}
+            {{- end }}
+            {{- if .Values.semoss.social.redirectUrl }}
+            - name: REDIRECT
+              value: {{ .Values.semoss.social.redirectUrl | quote }}
+            {{- end }}
+            {{- if .Values.semoss.social.enable_native_login }}
+            - name: ENABLE_NATIVE
+              value: {{ .Values.semoss.social.enable_native_login | quote }}
+            {{- end }}
+            {{- if .Values.semoss.social.enable_native_registration }}
+            - name: ENABLE_NATIVE_REGISTRATION
+              value: {{ .Values.semoss.social.enable_native_registration | quote }}
+            {{- end }}
+            {{- if .Values.semoss.social.enable_native_access_key_allowed }}
+            - name: ENABLE_NATIVE_ACCESS_KEY_ALLOWED
+              value: {{ .Values.semoss.social.enable_native_access_key_allowed | quote }}
+            {{- end }}
+            {{- if .Values.semoss.social.enable_api_user }}
+            - name: ENABLE_API_USER
+              value: {{ .Values.semoss.social.enable_api_user | quote }}
+            {{- end }}
+            {{- if .Values.semoss.social.api_user_dynamic }}
+            - name: API_USER_DYNAMIC
+              value: {{ .Values.semoss.social.api_user_dynamic | quote }}
+            {{- end }}
+
+            # --- Google SSO ---
+            {{- if .Values.semoss.social.enable_google_login }}
+            - name: ENABLE_GOOGLE
+              value: {{ .Values.semoss.social.enable_google_login | quote }}
+            - name: GOOGLE_CLIENT_ID
+              value: {{ .Values.semoss.social.google_client_id | quote }}
+            - name: GOOGLE_SECRET_KEY
+              value: {{ .Values.semoss.social.google_secret_key | quote }}
+            - name: GOOGLE_REDIRECT
+              value: {{ .Values.semoss.social.google_redirect_uri | quote }}
+            {{- end }}
+
+            # --- GitHub SSO ---
+            {{- if .Values.semoss.social.enable_github_login }}
+            - name: ENABLE_GITHUB
+              value: {{ .Values.semoss.social.enable_github_login | quote }}
+            - name: GITHUB_CLIENT_ID
+              value: {{ .Values.semoss.social.github_client_id | quote }}
+            - name: GITHUB_SECRET_KEY
+              value: {{ .Values.semoss.social.github_secret_key | quote }}
+            - name: GITHUB_REDIRECT
+              value: {{ .Values.semoss.social.github_redirect_uri | quote }}
+            {{- end }}
+
+            # --- Microsoft SSO ---
+            {{- if .Values.semoss.social.enable_ms_login }}
+            - name: ENABLE_MS
+              value: {{ .Values.semoss.social.enable_ms_login | quote }}
+            - name: MS_AUTHORITY
+              value: {{ .Values.semoss.social.ms_authority | quote }}
+            - name: MS_TENANT
+              value: {{ .Values.semoss.social.ms_tenant | quote }}
+            - name: MS_CLIENT_ID
+              value: {{ .Values.semoss.social.ms_client_id | quote }}
+            - name: MS_SECRET_KEY
+              value: {{ .Values.semoss.social.ms_secret_key | quote }}
+            - name: MS_REDIRECT
+              value: {{ .Values.semoss.social.ms_redirect_uri | quote }}
+            - name: MS_ACCESS_KEY_ALLOWED
+              value: {{ .Values.semoss.social.ms_access_key_allowed | quote }}
+            - name: MS_GRAPHAPI_LOOKUP
+              value: {{ .Values.semoss.social.ms_graphapi_lookup | quote }}
+            {{- if .Values.semoss.social.ms_display_name }}
+            - name: MS_DISPLAY_NAME
+              value: {{ .Values.semoss.social.ms_display_name | quote }}
+            {{- end }}
+            {{- end }}
+
+            # --- App Routing ---
+            {{- if .Values.semoss.monolithCookie }}
+            - name: MONOLITH_COOKIE
+              value: {{ .Values.semoss.monolithCookie | quote }}
+            {{- end }}
+            {{- if .Values.semoss.routing.monolith_route }}
+            - name: MONOLITH_ROUTE
+              value: {{ .Values.semoss.routing.monolith_route | quote }}
+            {{- end }}
+            {{- if .Values.semoss.routing.fe_route }}
+            - name: FE_ROUTE
+              value: {{ .Values.semoss.routing.fe_route | quote }}
+            {{- end }}
+            - name: SCHEDULER_ENDPOINT
+              value: {{ .Values.semoss.routing.scheduler_endpoint | quote }}
+            {{- if .Values.semoss.googleAnalytics }}
+            - name: GOOGLE_ANALYTICS_ID
+              value: {{ .Values.semoss.googleAnalytics | quote }}
+            {{- end }}
+
+            # --- Python Settings ---
+            - name: SMSS_PYTHONHOME
+              value: {{ .Values.semoss.python.smss_pythonhome | quote }}
+            - name: NETTY_PYTHON
+              value: {{ .Values.semoss.python.netty_python | quote }}
+            - name: NATIVE_PY_SERVER
+              value: {{ .Values.semoss.python.native_py_server | quote }}
+            - name: USE_TCP_PY
+              value: {{ .Values.semoss.python.use_tcp_py | quote }}
+            - name: USE_PY_FILE
+              value: {{ .Values.semoss.python.use_py_file | quote }}
+            - name: USE_FILE_PY
+              value: {{ .Values.semoss.python.use_file_py | quote }}
+            - name: TCP_WORKER
+              value: {{ .Values.semoss.python.tcp_worker | quote }}
+            - name: TCP_CLIENT
+              value: {{ .Values.semoss.python.tcp_client | quote }}
+
+            # --- R Settings ---
+            - name: R_ON
+              value: {{ .Values.semoss.r.r_on | quote }}
+            - name: R_CONNECTION_TYPE
+              value: {{ .Values.semoss.r.r_connection_type | quote }}
+            - name: R_HOME
+              value: {{ .Values.semoss.r.r_home | quote }}
+            - name: NETTY_R
+              value: {{ .Values.semoss.r.netty_r | quote }}
+            {{- if .Values.semoss.r.r_pool_size }}
+            - name: RSERVE_CONNECTION_POOL_SIZE
+              value: {{ .Values.semoss.r.r_pool_size | quote }}
+            {{- end }}
+            {{- if .Values.semoss.r.r_user_recovery }}
+            - name: R_USER_RECOVERY
+              value: {{ .Values.semoss.r.r_user_recovery | quote }}
+            {{- end }}
+
+            # --- File Transfer ---
+            - name: FILE_UPLOAD_LIMIT
+              value: {{ .Values.semoss.environmentVariables.FILE_UPLOAD_LIMIT | quote }}
+            - name: FILE_TRANSFER_LIMIT
+              value: {{ .Values.semoss.environmentVariables.FILE_TRANSFER_LIMIT | quote }}
+
+            # --- Cluster & Storage ---
+            - name: SEMOSS_IS_CLUSTER
+              value: {{ .Values.semoss.environmentVariables.SEMOSS_IS_CLUSTER | quote }}
+            - name: DISABLE_GIT_TERMINAL
+              value: {{ .Values.semoss.environmentVariables.DISABLE_GIT_TERMINAL | quote }}
+            - name: SESSION_TIMEOUT
+              value: {{ .Values.semoss.environmentVariables.SESSION_TIMEOUT | quote }}
+            - name: OPTIONAL_COOKIES
+              value: {{ .Values.semoss.environmentVariables.OPTIONAL_COOKIES | quote }}
+            {{- if .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER }}
+            - name: SEMOSS_STORAGE_PROVIDER
+              value: {{ .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.AZCONN }}
+            - name: AZCONN
+              value: {{ .Values.semoss.environmentVariables.AZCONN | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.AZURE_ACCT_NAME }}
+            - name: AZ_NAME
+              value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_NAME | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.AZURE_ACCT_KEY }}
+            - name: AZ_KEY
+              value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_KEY | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.S3_REGION }}
+            - name: S3_REGION
+              value: {{ .Values.semoss.environmentVariables.S3_REGION | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.S3_BUCKET }}
+            - name: S3_BUCKET
+              value: {{ .Values.semoss.environmentVariables.S3_BUCKET | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.S3_ACCESS_KEY }}
+            - name: S3_ACCESS_KEY
+              value: {{ .Values.semoss.environmentVariables.S3_ACCESS_KEY | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.S3_SECRET_KEY }}
+            - name: S3_SECRET_KEY
+              value: {{ .Values.semoss.environmentVariables.S3_SECRET_KEY | quote }}
+            {{- end }}
+
+            # --- Zookeeper ---
+            # Priority: zookeeper.enabled (auto-compute) > environmentVariables.ZK_SERVER (external)
+            {{- if .Values.zookeeper.enabled }}
+            - name: SEMOSS_IS_CLUSTER_ZK
+              value: "true"
+            - name: ZK_SERVER
+              value: "{{ printf "%s-%s" .Values.env .Values.zookeeper.name }}:{{ .Values.zookeeper.service.port }}"
+            {{- else if .Values.semoss.environmentVariables.ZK_SERVER }}
+            - name: SEMOSS_IS_CLUSTER_ZK
+              value: "true"
+            - name: ZK_SERVER
+              value: {{ .Values.semoss.environmentVariables.ZK_SERVER | quote }}
+            {{- end }}
+
+            {{- if .Values.semoss.environmentVariables.T_ON }}
+            - name: T_ON
+              value: {{ .Values.semoss.environmentVariables.T_ON | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.ERROR_REPORT_VALVE_ENABLED }}
+            - name: ERROR_REPORT_VALVE_ENABLED
+              value: {{ .Values.semoss.environmentVariables.ERROR_REPORT_VALVE_ENABLED | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.AUDIT_LOGS_DATABASE_ENABLED }}
+            - name: AUDIT_LOGS_DATABASE_ENABLED
+              value: {{ .Values.semoss.environmentVariables.AUDIT_LOGS_DATABASE_ENABLED | quote }}
+            {{- end }}
+
+            # --- Audit Logs DB ---
+            {{- if .Values.auditLogs.enabled }}
+            - name: AUDIT_LOGS_DATABASE_ENABLED
+              value: "true"
+            - name: CUSTOM_AUDITLOGS_DRIVER
+              value: {{ .Values.auditLogs.customDb.driver | quote }}
+            - name: CUSTOM_AUDITLOGS_RDBMS_TYPE
+              value: {{ .Values.auditLogs.customDb.rdbmsType | quote }}
+            - name: CUSTOM_AUDITLOGS_USERNAME
+              value: {{ .Values.auditLogs.customDb.username | quote }}
+            - name: CUSTOM_AUDITLOGS_PASSWORD
+              value: {{ .Values.auditLogs.customDb.password | quote }}
+            - name: CUSTOM_AUDITLOGS_SCHEMA
+              value: {{ .Values.auditLogs.customDb.schema | quote }}
+            - name: CUSTOM_AUDITLOGS_DATABASE
+              value: {{ .Values.auditLogs.customDb.database | quote }}
+            - name: CUSTOM_AUDITLOGS_CONNECTION_URL
+              value: {{ .Values.auditLogs.customDb.connectionUrl | quote }}
+            {{- end }}
+
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets}}
+        - name: {{ .Values.imagePullSecrets }}
       {{- end }}

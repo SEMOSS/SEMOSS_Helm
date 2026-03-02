@@ -4,96 +4,165 @@
 
 env: "semoss"
 
-imagePullSecrets:
+# Docker pull secret name (e.g. "regcred")
+imagePullSecrets: ""
 
 semoss:
   replicaCount: 1
   name: semoss
   image:
+    # Override with your image: e.g. quay.io/semoss/semoss-dev:5.2.0-SNAPSHOT-ubuntu22-latest
     repository: semoss/docker
     tag: "latest"
-    pullPolicy: IfNotPresent
-  
+    pullPolicy: Always
+
   readinessProbe:
     turnOn: true
     initialDelaySeconds: 60
-    timeoutSeconds: 5
-    periodSeconds: 5
+    timeoutSeconds: 10
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 2
   livenessProbe:
     turnOn: true
     initialDelaySeconds: 60
-    timeoutSeconds: 5
-    periodSeconds: 5
+    timeoutSeconds: 300
+    periodSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+
   nameOverride: ""
   fullnameOverride: ""
+
+  # Kubernetes service account (needed for cloud IAM roles, e.g. AWS IRSA for S3 access)
+  serviceAccount:
+    name: ""
+
+  # Pod-level security context
+  podSecurityContext:
+    runAsUser: 1001
+    fsGroup: 0
+
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: "8"
+      memory: "30Gi"
+    requests:
+      cpu: "2"
+      memory: "8Gi"
+
   monolithCookie: "monolith"
   googleAnalytics: ""
+
   security:
     securityOn: true
     anonymousUserOn: false
     anonymousUserUploadOn: false
+
   social:
     setSocial: "true"
     redirectUrl: "http://my.example.org/SemossWeb/"
+    # Native login
     enable_native_login: "true"
     enable_native_registration: "true"
-    enable_google_login:
-    google_client_id:
-    google_secret_key:
-    google_redirect_uri:
-    google_scope:  "https://www.googleapis.com/auth/forms https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/cloud-language"
+    enable_native_access_key_allowed: "true"
+    # API user
+    enable_api_user: "true"
+    api_user_dynamic: "false"
+    # Google SSO
+    enable_google_login: ""
+    google_client_id: ""
+    google_secret_key: ""
+    google_redirect_uri: ""
+    google_scope: "https://www.googleapis.com/auth/forms https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/cloud-language"
     google_access_type: "online"
-    google_maps_api:
-    enable_github_login:
-    github_client_id:
-    github_secret_key:
-    github_redirect_uri:
+    google_maps_api: ""
+    # GitHub SSO
+    enable_github_login: ""
+    github_client_id: ""
+    github_secret_key: ""
+    github_redirect_uri: ""
     github_scope: "public_repo"
-    enable_ms_login:
-    ms_authority:
-    ms_tenant:
-    ms_client_id:
-    ms_secret_key:
-    ms_redirect_uri:
+    # Microsoft SSO
+    enable_ms_login: ""
+    ms_authority: ""
+    ms_tenant: ""
+    ms_client_id: ""
+    ms_secret_key: ""
+    ms_redirect_uri: ""
     ms_scope: "User.Read"
+    ms_access_key_allowed: "true"
+    ms_graphapi_lookup: "false"
+    ms_display_name: ""
+
+  # App routing - used for multi-instance deployments sharing a single ingress
+  routing:
+    # MONOLITH_ROUTE: route suffix for this instance (e.g. "dev" → /dev/Monolith)
+    monolith_route: ""
+    # FE_ROUTE: frontend path prefix (e.g. "/dev/Monolith")
+    fe_route: ""
+    # Internal scheduler endpoint (usually localhost since scheduler runs in same pod)
+    scheduler_endpoint: "http://localhost:8080/Monolith"
+
+  # Python runtime settings
+  python:
+    smss_pythonhome: "/usr/lib/python/semossvenv"
+    netty_python: "true"
+    native_py_server: "true"
+    use_tcp_py: "false"
+    use_py_file: "false"
+    use_file_py: "false"
+    tcp_worker: "prerna.tcp.SocketServer"
+    tcp_client: "prerna.tcp.client.NativePySocketClient"
+
   r:
-    r_on: true
-    r_connection_type: "User_Rserve_Dedicated"
-    r_pool_size:
-    r_user_recovery:
-    containerName: "rserve"
-    image:
-      repository: semoss/docker
-      tag: "latest"
-  chroot:
-    chroot_enable: false
-    chroot_debootstrap_dir:
-    chroot_dir:
-    chroot_sudo:
-    
+    r_on: "false"
+    r_connection_type: "JRI"
+    r_home: "/tmp"
+    netty_r: "true"
+    r_pool_size: ""
+    r_user_recovery: ""
+
   service:
     type: ClusterIP
     port: 8080
-    nodePort: 
+    nodePort: ""
 
   environmentVariables:
+    # Azure Blob Storage
     AZURE_ACCT_KEY: ""
     AZURE_ACCT_NAME: ""
+    AZCONN: ""
+    # AWS S3
     S3_REGION: ""
     S3_BUCKET: ""
     S3_ACCESS_KEY: ""
     S3_SECRET_KEY: ""
+    # Cluster mode
     SEMOSS_IS_CLUSTER: "true"
-    SEMOSS_STORAGE_PROVIDER: ""
-    AZCONN: ""
-    SECURITY_ON: "true"
-    FILE_UPLOAD_LIMIT: ""
+    SEMOSS_STORAGE_PROVIDER: ""   # AZURE | S3 | GCS | MINIO | LOCAL
+    DISABLE_GIT_TERMINAL: "true"
+    # Session
+    SESSION_TIMEOUT: "28800"      # seconds (28800 = 8 hours)
+    OPTIONAL_COOKIES: "false"
+    # File limits (MB)
+    FILE_UPLOAD_LIMIT: "500"
+    FILE_TRANSFER_LIMIT: "500"
+    # Tomcat manager disable (set to "false" to disable the /manager app)
+    T_ON: ""
+    # Error reporting valve
+    ERROR_REPORT_VALVE_ENABLED: ""
+    # Audit log database enabled flag (standalone, without full auditLogs.enabled block)
+    AUDIT_LOGS_DATABASE_ENABLED: ""
+    # External Zookeeper (leave blank to auto-compute from zookeeper.enabled)
+    ZK_SERVER: ""
 
 
 ingress:
   name: "ingress"
   enabled: true
-  # set up for nginx ingress - if other ingress is used, enable sticky session as appropriate
+  # Configured for nginx ingress with sticky sessions - adjust annotations for other controllers
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/affinity: cookie
@@ -109,12 +178,31 @@ ingress:
   tls: []
   #    - hosts:
   #        - "my.example.org"
-  #        - "*.test.org"
-  #      secretName: my-tls-sercret
+  #      secretName: my-tls-secret
   hosts:
     - host: my.example.org
       paths:
-      - /
+        - /
+
+
+# --- Zookeeper (required for cluster mode with SEMOSS_IS_CLUSTER_ZK=true) ---
+zookeeper:
+  enabled: false
+  replicaCount: 1
+  name: zk
+  image:
+    repository: zookeeper
+    tag: "3.8.4"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 2181
+
+
+# --- System Databases ---
+# Each database supports two connection modes:
+#   h2 mode (default): deploys a local H2 TCP server pod and uses REMOTE_* env vars
+#   postgres mode: set customDb.connectionUrl to use CUSTOM_* env vars (no H2 pod needed)
 
 security:
   replicaCount: 1
@@ -126,7 +214,7 @@ security:
   nameOverride: ""
   fullnameOverride: ""
   useStorage: true
-  # storageClass: "-"
+  # storageClass: ""
   storageSize: 3Gi
   service:
     type: ClusterIP
@@ -135,6 +223,15 @@ security:
     name: sec
     persistentVolumeClaimName: security-volume
     persistentVolumeReclaimPolicy: Retain
+  # Set connectionUrl to switch from H2 pod to external PostgreSQL
+  customDb:
+    connectionUrl: ""   # e.g. jdbc:postgresql://dbhost:5432/security?currentSchema=public
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "security"
 
 localmaster:
   replicaCount: 1
@@ -144,7 +241,7 @@ localmaster:
     tag: 1.4.200
     pullPolicy: IfNotPresent
   useStorage: true
-  # storageClass: "-"
+  # storageClass: ""
   storageSize: 3Gi
   nameOverride: ""
   fullnameOverride: ""
@@ -155,6 +252,14 @@ localmaster:
     name: lm
     persistentVolumeClaimName: localmaster-volume
     persistentVolumeReclaimPolicy: Retain
+  customDb:
+    connectionUrl: ""   # e.g. jdbc:postgresql://dbhost:5432/localmaster?currentSchema=public
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "localmaster"
 
 scheduler:
   replicaCount: 1
@@ -164,7 +269,7 @@ scheduler:
     tag: 1.4.200
     pullPolicy: IfNotPresent
   useStorage: true
-  # storageClass: "-"
+  # storageClass: ""
   storageSize: 2Gi
   nameOverride: ""
   fullnameOverride: ""
@@ -175,6 +280,14 @@ scheduler:
     name: scheduler
     persistentVolumeClaimName: scheduler-volume
     persistentVolumeReclaimPolicy: Retain
+  customDb:
+    connectionUrl: ""   # e.g. jdbc:postgresql://dbhost:5432/scheduler?currentSchema=public
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "scheduler"
 
 themes:
   replicaCount: 1
@@ -184,7 +297,7 @@ themes:
     tag: 1.4.200
     pullPolicy: IfNotPresent
   useStorage: true
-  # storageClass: "-"
+  # storageClass: ""
   storageSize: 1Gi
   nameOverride: ""
   fullnameOverride: ""
@@ -195,6 +308,14 @@ themes:
     name: themes
     persistentVolumeClaimName: themes-volume
     persistentVolumeReclaimPolicy: Retain
+  customDb:
+    connectionUrl: ""   # e.g. jdbc:postgresql://dbhost:5432/themes?currentSchema=public
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "themes"
 
 usertracking:
   enabled: true
@@ -205,7 +326,7 @@ usertracking:
     tag: 1.4.200
     pullPolicy: IfNotPresent
   useStorage: true
-  # storageClass: "-"
+  # storageClass: ""
   storageSize: 3Gi
   nameOverride: ""
   fullnameOverride: ""
@@ -216,22 +337,52 @@ usertracking:
     name: usertracking
     persistentVolumeClaimName: usertracking-volume
     persistentVolumeReclaimPolicy: Retain
+  customDb:
+    connectionUrl: ""   # e.g. jdbc:postgresql://dbhost:5432/user_tracking?currentSchema=public
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "user_tracking"
 
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# --- Optional Databases (disabled by default) ---
+
+modelInferenceLogs:
+  enabled: false
+  customDb:
+    connectionUrl: ""   # required when enabled
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "model_logs"
+
+promptHub:
+  enabled: false
+  customDb:
+    connectionUrl: ""   # required when enabled
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "prompt_hub"
+
+auditLogs:
+  enabled: false
+  customDb:
+    connectionUrl: ""   # required when enabled
+    driver: "org.postgresql.Driver"
+    rdbmsType: "POSTGRES"
+    username: ""
+    password: ""
+    schema: "public"
+    database: "audit_logs"
+
 
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
