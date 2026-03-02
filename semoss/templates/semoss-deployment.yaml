@@ -90,119 +90,84 @@ spec:
                   fieldPath: metadata.name
 
             # --- Security DB ---
-            {{- if .Values.security.customDb.connectionUrl }}
             - name: CUSTOM_SECURITY_DRIVER
-              value: {{ .Values.security.customDb.driver | quote }}
+              value: {{ .Values.security.driver | quote }}
             - name: CUSTOM_SECURITY_RDBMS_TYPE
-              value: {{ .Values.security.customDb.rdbmsType | quote }}
+              value: {{ .Values.security.rdbmsType | quote }}
             - name: CUSTOM_SECURITY_USERNAME
-              value: {{ .Values.security.customDb.username | quote }}
+              value: {{ .Values.security.username | quote }}
             - name: CUSTOM_SECURITY_PASSWORD
-              value: {{ .Values.security.customDb.password | quote }}
+              value: {{ .Values.security.password | quote }}
             - name: CUSTOM_SECURITY_SCHEMA
-              value: {{ .Values.security.customDb.schema | quote }}
+              value: {{ .Values.security.schema | quote }}
             - name: CUSTOM_SECURITY_DATABASE
-              value: {{ .Values.security.customDb.database | quote }}
+              value: {{ .Values.security.database | quote }}
             - name: CUSTOM_SECURITY_CONNECTION_URL
-              value: {{ .Values.security.customDb.connectionUrl | quote }}
-            {{- else }}
-            - name: REMOTE_SECURITY
-              value: "true"
-            - name: REMOTE_SECURITY_IP
-              value: "{{ printf "%s-%s" .Values.env .Values.security.name }}:{{ .Values.security.service.port }}"
-            {{- end }}
+              value: {{ .Values.security.connectionUrl | quote }}
 
             # --- Local Master DB ---
-            {{- if .Values.localmaster.customDb.connectionUrl }}
             - name: CUSTOM_LM_DRIVER
-              value: {{ .Values.localmaster.customDb.driver | quote }}
+              value: {{ .Values.localmaster.driver | quote }}
             - name: CUSTOM_LM_RDBMS_TYPE
-              value: {{ .Values.localmaster.customDb.rdbmsType | quote }}
+              value: {{ .Values.localmaster.rdbmsType | quote }}
             - name: CUSTOM_LM_USERNAME
-              value: {{ .Values.localmaster.customDb.username | quote }}
+              value: {{ .Values.localmaster.username | quote }}
             - name: CUSTOM_LM_PASSWORD
-              value: {{ .Values.localmaster.customDb.password | quote }}
+              value: {{ .Values.localmaster.password | quote }}
             - name: CUSTOM_LM_SCHEMA
-              value: {{ .Values.localmaster.customDb.schema | quote }}
+              value: {{ .Values.localmaster.schema | quote }}
             - name: CUSTOM_LM_DATABASE
-              value: {{ .Values.localmaster.customDb.database | quote }}
+              value: {{ .Values.localmaster.database | quote }}
             - name: CUSTOM_LM_CONNECTION_URL
-              value: {{ .Values.localmaster.customDb.connectionUrl | quote }}
-            {{- else }}
-            - name: REMOTE_LOCALMASTER
-              value: "true"
-            - name: REMOTE_LOCALMASTER_IP
-              value: "{{ printf "%s-%s" .Values.env .Values.localmaster.name }}:{{ .Values.localmaster.service.port }}"
-            {{- end }}
+              value: {{ .Values.localmaster.connectionUrl | quote }}
 
             # --- Scheduler DB ---
-            {{- if .Values.scheduler.customDb.connectionUrl }}
             - name: CUSTOM_SCHEDULER_DRIVER
-              value: {{ .Values.scheduler.customDb.driver | quote }}
+              value: {{ .Values.scheduler.driver | quote }}
             - name: CUSTOM_SCHEDULER_RDBMS_TYPE
-              value: {{ .Values.scheduler.customDb.rdbmsType | quote }}
+              value: {{ .Values.scheduler.rdbmsType | quote }}
             - name: CUSTOM_SCHEDULER_USERNAME
-              value: {{ .Values.scheduler.customDb.username | quote }}
+              value: {{ .Values.scheduler.username | quote }}
             - name: CUSTOM_SCHEDULER_PASSWORD
-              value: {{ .Values.scheduler.customDb.password | quote }}
+              value: {{ .Values.scheduler.password | quote }}
             - name: CUSTOM_SCHEDULER_SCHEMA
-              value: {{ .Values.scheduler.customDb.schema | quote }}
+              value: {{ .Values.scheduler.schema | quote }}
             - name: CUSTOM_SCHEDULER_DATABASE
-              value: {{ .Values.scheduler.customDb.database | quote }}
+              value: {{ .Values.scheduler.database | quote }}
             - name: CUSTOM_SCHEDULER_CONNECTION_URL
-              value: {{ .Values.scheduler.customDb.connectionUrl | quote }}
-            {{- else }}
-            - name: REMOTE_SCHEDULER
-              value: "true"
-            - name: REMOTE_SCHEDULER_IP
-              value: "{{ printf "%s-%s" .Values.env .Values.scheduler.name }}:{{ .Values.scheduler.service.port }}"
-            {{- end }}
+              value: {{ .Values.scheduler.connectionUrl | quote }}
 
             # --- Themes DB ---
-            {{- if .Values.themes.customDb.connectionUrl }}
             - name: CUSTOM_THEMES_DRIVER
-              value: {{ .Values.themes.customDb.driver | quote }}
+              value: {{ .Values.themes.driver | quote }}
             - name: CUSTOM_THEMES_RDBMS_TYPE
-              value: {{ .Values.themes.customDb.rdbmsType | quote }}
+              value: {{ .Values.themes.rdbmsType | quote }}
             - name: CUSTOM_THEMES_USERNAME
-              value: {{ .Values.themes.customDb.username | quote }}
+              value: {{ .Values.themes.username | quote }}
             - name: CUSTOM_THEMES_PASSWORD
-              value: {{ .Values.themes.customDb.password | quote }}
+              value: {{ .Values.themes.password | quote }}
             - name: CUSTOM_THEMES_SCHEMA
-              value: {{ .Values.themes.customDb.schema | quote }}
+              value: {{ .Values.themes.schema | quote }}
             - name: CUSTOM_THEMES_DATABASE
-              value: {{ .Values.themes.customDb.database | quote }}
+              value: {{ .Values.themes.database | quote }}
             - name: CUSTOM_THEMES_CONNECTION_URL
-              value: {{ .Values.themes.customDb.connectionUrl | quote }}
-            {{- else }}
-            - name: REMOTE_THEMES
-              value: "true"
-            - name: REMOTE_THEMES_IP
-              value: "{{ printf "%s-%s" .Values.env .Values.themes.name }}:{{ .Values.themes.service.port }}"
-            {{- end }}
+              value: {{ .Values.themes.connectionUrl | quote }}
 
             # --- User Tracking DB ---
-            {{- if .Values.usertracking.customDb.connectionUrl }}
             - name: CUSTOM_USER_TRACKING_DRIVER
-              value: {{ .Values.usertracking.customDb.driver | quote }}
+              value: {{ .Values.usertracking.driver | quote }}
             - name: CUSTOM_USER_TRACKING_RDBMS_TYPE
-              value: {{ .Values.usertracking.customDb.rdbmsType | quote }}
+              value: {{ .Values.usertracking.rdbmsType | quote }}
             - name: CUSTOM_USER_TRACKING_USERNAME
-              value: {{ .Values.usertracking.customDb.username | quote }}
+              value: {{ .Values.usertracking.username | quote }}
             - name: CUSTOM_USER_TRACKING_PASSWORD
-              value: {{ .Values.usertracking.customDb.password | quote }}
+              value: {{ .Values.usertracking.password | quote }}
             - name: CUSTOM_USER_TRACKING_SCHEMA
-              value: {{ .Values.usertracking.customDb.schema | quote }}
+              value: {{ .Values.usertracking.schema | quote }}
             - name: CUSTOM_USER_TRACKING_DATABASE
-              value: {{ .Values.usertracking.customDb.database | quote }}
+              value: {{ .Values.usertracking.database | quote }}
             - name: CUSTOM_USER_TRACKING_CONNECTION_URL
-              value: {{ .Values.usertracking.customDb.connectionUrl | quote }}
-            {{- else }}
-            - name: REMOTE_USERTRACKING
-              value: "true"
-            - name: REMOTE_USERTRACKING_IP
-              value: "{{ printf "%s-%s" .Values.env .Values.usertracking.name }}:{{ .Values.usertracking.service.port }}"
-            {{- end }}
+              value: {{ .Values.usertracking.connectionUrl | quote }}
             - name: USER_TRACKING_ENABLED
               value: {{ .Values.usertracking.enabled | quote }}
 
@@ -211,19 +176,19 @@ spec:
             - name: MODEL_INFERENCE_LOGS_ENABLED
               value: "true"
             - name: CUSTOM_MODEL_INFERENCE_LOGS_DRIVER
-              value: {{ .Values.modelInferenceLogs.customDb.driver | quote }}
+              value: {{ .Values.modelInferenceLogs.driver | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_RDBMS_TYPE
-              value: {{ .Values.modelInferenceLogs.customDb.rdbmsType | quote }}
+              value: {{ .Values.modelInferenceLogs.rdbmsType | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_USERNAME
-              value: {{ .Values.modelInferenceLogs.customDb.username | quote }}
+              value: {{ .Values.modelInferenceLogs.username | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_PASSWORD
-              value: {{ .Values.modelInferenceLogs.customDb.password | quote }}
+              value: {{ .Values.modelInferenceLogs.password | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_SCHEMA
-              value: {{ .Values.modelInferenceLogs.customDb.schema | quote }}
+              value: {{ .Values.modelInferenceLogs.schema | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_DATABASE
-              value: {{ .Values.modelInferenceLogs.customDb.database | quote }}
+              value: {{ .Values.modelInferenceLogs.database | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_CONNECTION_URL
-              value: {{ .Values.modelInferenceLogs.customDb.connectionUrl | quote }}
+              value: {{ .Values.modelInferenceLogs.connectionUrl | quote }}
             {{- end }}
 
             # --- Prompt Hub DB ---
@@ -231,22 +196,42 @@ spec:
             - name: PROMPT_DB_ENABLED
               value: "true"
             - name: CUSTOM_PROMPT_DRIVER
-              value: {{ .Values.promptHub.customDb.driver | quote }}
+              value: {{ .Values.promptHub.driver | quote }}
             - name: CUSTOM_PROMPT_RDBMS_TYPE
-              value: {{ .Values.promptHub.customDb.rdbmsType | quote }}
+              value: {{ .Values.promptHub.rdbmsType | quote }}
             - name: CUSTOM_PROMPT_USERNAME
-              value: {{ .Values.promptHub.customDb.username | quote }}
+              value: {{ .Values.promptHub.username | quote }}
             - name: CUSTOM_PROMPT_PASSWORD
-              value: {{ .Values.promptHub.customDb.password | quote }}
+              value: {{ .Values.promptHub.password | quote }}
             - name: CUSTOM_PROMPTS_SCHEMA
-              value: {{ .Values.promptHub.customDb.schema | quote }}
+              value: {{ .Values.promptHub.schema | quote }}
             - name: CUSTOM_PROMPT_DATABASE
-              value: {{ .Values.promptHub.customDb.database | quote }}
+              value: {{ .Values.promptHub.database | quote }}
             - name: CUSTOM_PROMPT_CONNECTION_URL
-              value: {{ .Values.promptHub.customDb.connectionUrl | quote }}
+              value: {{ .Values.promptHub.connectionUrl | quote }}
             {{- end }}
 
-            # --- Auth & Security Settings ---
+            # --- Audit Logs DB ---
+            {{- if .Values.auditLogs.enabled }}
+            - name: AUDIT_LOGS_DATABASE_ENABLED
+              value: "true"
+            - name: CUSTOM_AUDITLOGS_DRIVER
+              value: {{ .Values.auditLogs.driver | quote }}
+            - name: CUSTOM_AUDITLOGS_RDBMS_TYPE
+              value: {{ .Values.auditLogs.rdbmsType | quote }}
+            - name: CUSTOM_AUDITLOGS_USERNAME
+              value: {{ .Values.auditLogs.username | quote }}
+            - name: CUSTOM_AUDITLOGS_PASSWORD
+              value: {{ .Values.auditLogs.password | quote }}
+            - name: CUSTOM_AUDITLOGS_SCHEMA
+              value: {{ .Values.auditLogs.schema | quote }}
+            - name: CUSTOM_AUDITLOGS_DATABASE
+              value: {{ .Values.auditLogs.database | quote }}
+            - name: CUSTOM_AUDITLOGS_CONNECTION_URL
+              value: {{ .Values.auditLogs.connectionUrl | quote }}
+            {{- end }}
+
+            # --- Auth & Security ---
             - name: SECURITY_ON
               value: {{ .Values.semoss.security.securityOn | quote }}
             {{- if .Values.semoss.security.anonymousUserOn }}
@@ -287,8 +272,7 @@ spec:
             - name: API_USER_DYNAMIC
               value: {{ .Values.semoss.social.api_user_dynamic | quote }}
             {{- end }}
-
-            # --- Google SSO ---
+            # Google SSO
             {{- if .Values.semoss.social.enable_google_login }}
             - name: ENABLE_GOOGLE
               value: {{ .Values.semoss.social.enable_google_login | quote }}
@@ -299,8 +283,7 @@ spec:
             - name: GOOGLE_REDIRECT
               value: {{ .Values.semoss.social.google_redirect_uri | quote }}
             {{- end }}
-
-            # --- GitHub SSO ---
+            # GitHub SSO
             {{- if .Values.semoss.social.enable_github_login }}
             - name: ENABLE_GITHUB
               value: {{ .Values.semoss.social.enable_github_login | quote }}
@@ -311,8 +294,7 @@ spec:
             - name: GITHUB_REDIRECT
               value: {{ .Values.semoss.social.github_redirect_uri | quote }}
             {{- end }}
-
-            # --- Microsoft SSO ---
+            # Microsoft SSO
             {{- if .Values.semoss.social.enable_ms_login }}
             - name: ENABLE_MS
               value: {{ .Values.semoss.social.enable_ms_login | quote }}
@@ -401,28 +383,30 @@ spec:
             # --- Cluster & Storage ---
             - name: SEMOSS_IS_CLUSTER
               value: {{ .Values.semoss.environmentVariables.SEMOSS_IS_CLUSTER | quote }}
-            - name: DISABLE_GIT_TERMINAL
-              value: {{ .Values.semoss.environmentVariables.DISABLE_GIT_TERMINAL | quote }}
             - name: SESSION_TIMEOUT
               value: {{ .Values.semoss.environmentVariables.SESSION_TIMEOUT | quote }}
             - name: OPTIONAL_COOKIES
               value: {{ .Values.semoss.environmentVariables.OPTIONAL_COOKIES | quote }}
+            - name: DISABLE_GIT_TERMINAL
+              value: {{ .Values.semoss.environmentVariables.DISABLE_GIT_TERMINAL | quote }}
             {{- if .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER }}
             - name: SEMOSS_STORAGE_PROVIDER
               value: {{ .Values.semoss.environmentVariables.SEMOSS_STORAGE_PROVIDER | quote }}
             {{- end }}
+            # Azure storage
             {{- if .Values.semoss.environmentVariables.AZCONN }}
             - name: AZCONN
               value: {{ .Values.semoss.environmentVariables.AZCONN | quote }}
             {{- end }}
-            {{- if .Values.semoss.environmentVariables.AZURE_ACCT_NAME }}
+            {{- if .Values.semoss.environmentVariables.AZ_NAME }}
             - name: AZ_NAME
-              value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_NAME | quote }}
+              value: {{ .Values.semoss.environmentVariables.AZ_NAME | quote }}
             {{- end }}
-            {{- if .Values.semoss.environmentVariables.AZURE_ACCT_KEY }}
+            {{- if .Values.semoss.environmentVariables.AZ_KEY }}
             - name: AZ_KEY
-              value: {{ .Values.semoss.environmentVariables.AZURE_ACCT_KEY | quote }}
+              value: {{ .Values.semoss.environmentVariables.AZ_KEY | quote }}
             {{- end }}
+            # S3 storage
             {{- if .Values.semoss.environmentVariables.S3_REGION }}
             - name: S3_REGION
               value: {{ .Values.semoss.environmentVariables.S3_REGION | quote }}
@@ -439,21 +423,20 @@ spec:
             - name: S3_SECRET_KEY
               value: {{ .Values.semoss.environmentVariables.S3_SECRET_KEY | quote }}
             {{- end }}
-
-            # --- Zookeeper ---
-            # Priority: zookeeper.enabled (auto-compute) > environmentVariables.ZK_SERVER (external)
-            {{- if .Values.zookeeper.enabled }}
-            - name: SEMOSS_IS_CLUSTER_ZK
-              value: "true"
-            - name: ZK_SERVER
-              value: "{{ printf "%s-%s" .Values.env .Values.zookeeper.name }}:{{ .Values.zookeeper.service.port }}"
-            {{- else if .Values.semoss.environmentVariables.ZK_SERVER }}
-            - name: SEMOSS_IS_CLUSTER_ZK
-              value: "true"
-            - name: ZK_SERVER
-              value: {{ .Values.semoss.environmentVariables.ZK_SERVER | quote }}
+            # Terminal controls
+            {{- if .Values.semoss.environmentVariables.DISABLE_TERMINAL }}
+            - name: DISABLE_TERMINAL
+              value: {{ .Values.semoss.environmentVariables.DISABLE_TERMINAL | quote }}
             {{- end }}
-
+            {{- if .Values.semoss.environmentVariables.DISABLE_PY_TERMINAL }}
+            - name: DISABLE_PY_TERMINAL
+              value: {{ .Values.semoss.environmentVariables.DISABLE_PY_TERMINAL | quote }}
+            {{- end }}
+            {{- if .Values.semoss.environmentVariables.DISABLE_R_TERMINAL }}
+            - name: DISABLE_R_TERMINAL
+              value: {{ .Values.semoss.environmentVariables.DISABLE_R_TERMINAL | quote }}
+            {{- end }}
+            # Misc
             {{- if .Values.semoss.environmentVariables.T_ON }}
             - name: T_ON
               value: {{ .Values.semoss.environmentVariables.T_ON | quote }}
@@ -467,24 +450,17 @@ spec:
               value: {{ .Values.semoss.environmentVariables.AUDIT_LOGS_DATABASE_ENABLED | quote }}
             {{- end }}
 
-            # --- Audit Logs DB ---
-            {{- if .Values.auditLogs.enabled }}
-            - name: AUDIT_LOGS_DATABASE_ENABLED
+            # --- Zookeeper ---
+            {{- if .Values.zookeeper.enabled }}
+            - name: SEMOSS_IS_CLUSTER_ZK
               value: "true"
-            - name: CUSTOM_AUDITLOGS_DRIVER
-              value: {{ .Values.auditLogs.customDb.driver | quote }}
-            - name: CUSTOM_AUDITLOGS_RDBMS_TYPE
-              value: {{ .Values.auditLogs.customDb.rdbmsType | quote }}
-            - name: CUSTOM_AUDITLOGS_USERNAME
-              value: {{ .Values.auditLogs.customDb.username | quote }}
-            - name: CUSTOM_AUDITLOGS_PASSWORD
-              value: {{ .Values.auditLogs.customDb.password | quote }}
-            - name: CUSTOM_AUDITLOGS_SCHEMA
-              value: {{ .Values.auditLogs.customDb.schema | quote }}
-            - name: CUSTOM_AUDITLOGS_DATABASE
-              value: {{ .Values.auditLogs.customDb.database | quote }}
-            - name: CUSTOM_AUDITLOGS_CONNECTION_URL
-              value: {{ .Values.auditLogs.customDb.connectionUrl | quote }}
+            - name: ZK_SERVER
+              value: "{{ printf "%s-%s" .Values.env .Values.zookeeper.name }}:{{ .Values.zookeeper.service.port }}"
+            {{- else if .Values.semoss.environmentVariables.ZK_SERVER }}
+            - name: SEMOSS_IS_CLUSTER_ZK
+              value: "true"
+            - name: ZK_SERVER
+              value: {{ .Values.semoss.environmentVariables.ZK_SERVER | quote }}
             {{- end }}
 
       {{- if .Values.imagePullSecrets }}
