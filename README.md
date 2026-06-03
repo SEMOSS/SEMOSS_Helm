@@ -28,6 +28,7 @@ helm install semoss . -f values.yaml
 | `ingress.yaml` | nginx ingress with sticky-session cookie affinity |
 | `zk-deployment.yaml` | Zookeeper pod (disabled by default) |
 | `zk-service.yaml` | Zookeeper ClusterIP service on port 2181 |
+| `_helpers.db.tpl` | JDBC URL builder; auto-constructs Postgres URLs from shared db config |
 
 ## Configuration
 
@@ -49,34 +50,52 @@ imagePullSecrets: "quay-pull-secret"
 
 ### 2. System Databases (required)
 
-All five databases must exist in PostgreSQL before install. Provide a full JDBC connection URL and credentials for each:
+All five databases must exist in PostgreSQL before install and set shared connection details under **db:** 
+In case the **type:** is set to `postgres` then the chart auto-builds the JDBC URL per database using [semoss/templates/_helpers.db.tpl](semoss/templates/_helpers.db.tpl).
+
+Use **connectionUrl** only to override the generated URL or when using a non-Postgres setup.
 
 ```yaml
-security:
-  connectionUrl: "jdbc:postgresql://<host>:5432/security?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+db:
+  host: "your-postgres-host"   # required
+  username: "username"         # required
+  password: "changeme"         # required
+  port: 5432                   # optional, default: 5432
+  schema: "public"             # optional, default: "public"
+  type: "postgres"             # optional, default: "postgres"
 
-localmaster:
-  connectionUrl: "jdbc:postgresql://<host>:5432/localmaster?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+  # driver and rdbmsType are optional; only set if non-Postgres (requires connectionUrl)
+  # The connectionURL looks like "jdbc:postgresql://<host>:5432/security?currentSchema=public "
 
-scheduler:
-  connectionUrl: "jdbc:postgresql://<host>:5432/scheduler?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+securityDb:
+  database: "security"    # required  
+  connectionUrl: ""       # optional override
+  schema: ""              # optional, defaults to db.schema
 
-themes:
-  connectionUrl: "jdbc:postgresql://<host>:5432/themes?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+localmasterDb:
+  database: "localmaster" # required
+  connectionUrl: ""       # optional override
+  schema: ""              # optional, defaults to db.schema
 
-usertracking:
-  enabled: true
-  connectionUrl: "jdbc:postgresql://<host>:5432/user_tracking?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+
+schedulerDb:
+  database: "scheduler"  # required
+  connectionUrl: ""      # optional override
+  schema: ""             # optional, defaults to db.schema
+
+
+themesDb:
+  database: "themes"     # required
+  connectionUrl: ""      # optional override
+  schema: ""             # optional, defaults to db.schema
+
+
+usertrackingDb:
+  enabled: true              # required
+  database: "user_tracking"  # required
+  connectionUrl: ""          # optional override
+  schema: ""                 # optional, defaults to db.schema
+
 ```
 
 ### 3. Optional Feature Databases
@@ -84,23 +103,26 @@ usertracking:
 Enable additional databases to activate optional features:
 
 ```yaml
-modelInferenceLogs:
-  enabled: true
-  connectionUrl: "jdbc:postgresql://<host>:5432/model_logs?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+modelInferenceLogsDb:
+  enabled: true          # required
+  database: "model_logs" # required
+  connectionUrl: ""      # optional override
+  schema: ""             # optional, defaults to db.schema
 
-promptHub:
-  enabled: true
-  connectionUrl: "jdbc:postgresql://<host>:5432/prompt_hub?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
 
-auditLogs:
-  enabled: true
-  connectionUrl: "jdbc:postgresql://<host>:5432/audit_logs?currentSchema=public"
-  username: "semoss"
-  password: "changeme"
+promptHubDb:
+  enabled: true          # required
+  database: "prompt_hub" # required
+  connectionUrl: ""      # optional override
+  schema: ""             # optional, defaults to db.schema
+
+
+auditLogsDb:
+  enabled: true          # required
+  database: "audit_logs" # required
+  connectionUrl: ""      # optional override
+  schema: ""             # optional, defaults to db.schema
+
 ```
 
 ### 4. Cloud Storage
@@ -161,14 +183,18 @@ The ingress ships with nginx sticky-session cookie affinity (`route-semoss`) and
 
 ### 6. Cluster Mode (Horizontal Scaling)
 
-For multiple SEMOSS replicas, enable Zookeeper:
+For multiple SEMOSS replicas, change the `replicaCount` value:
 
 ```yaml
 semoss:
   replicaCount: 3
+```
 
+To enable Zookeeper, set the value to true. For multiple replicas change the `replicaCount` value.
+```yaml
 zookeeper:
   enabled: true   # deploys ZK pod and auto-sets ZK_SERVER env var
+  replicaCount: 1
 ```
 
 To use an external Zookeeper instead:

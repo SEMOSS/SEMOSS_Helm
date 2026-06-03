@@ -91,144 +91,144 @@ spec:
 
             # --- Security DB ---
             - name: CUSTOM_SECURITY_DRIVER
-              value: {{ .Values.security.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_SECURITY_RDBMS_TYPE
-              value: {{ .Values.security.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_SECURITY_USERNAME
-              value: {{ .Values.security.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_SECURITY_PASSWORD
-              value: {{ .Values.security.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_SECURITY_SCHEMA
-              value: {{ .Values.security.schema | quote }}
+              value: {{ default .Values.db.schema .Values.securityDb.schema | quote }}
             - name: CUSTOM_SECURITY_DATABASE
-              value: {{ .Values.security.database | quote }}
+              value: {{ .Values.securityDb.database | quote }}
             - name: CUSTOM_SECURITY_CONNECTION_URL
-              value: {{ .Values.security.connectionUrl | quote }}
-
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.securityDb "name" "securityDb") | quote }}
+            
             # --- Local Master DB ---
             - name: CUSTOM_LM_DRIVER
-              value: {{ .Values.localmaster.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_LM_RDBMS_TYPE
-              value: {{ .Values.localmaster.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_LM_USERNAME
-              value: {{ .Values.localmaster.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_LM_PASSWORD
-              value: {{ .Values.localmaster.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_LM_SCHEMA
-              value: {{ .Values.localmaster.schema | quote }}
+              value: {{ default .Values.db.schema .Values.localmasterDb.schema | quote }}
             - name: CUSTOM_LM_DATABASE
-              value: {{ .Values.localmaster.database | quote }}
+              value: {{ .Values.localmasterDb.database | quote }}
             - name: CUSTOM_LM_CONNECTION_URL
-              value: {{ .Values.localmaster.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.localmasterDb "name" "localmasterDb") | quote }}
 
             # --- Scheduler DB ---
             - name: CUSTOM_SCHEDULER_DRIVER
-              value: {{ .Values.scheduler.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_SCHEDULER_RDBMS_TYPE
-              value: {{ .Values.scheduler.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_SCHEDULER_USERNAME
-              value: {{ .Values.scheduler.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_SCHEDULER_PASSWORD
-              value: {{ .Values.scheduler.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_SCHEDULER_SCHEMA
-              value: {{ .Values.scheduler.schema | quote }}
+              value: {{ default .Values.db.schema .Values.schedulerDb.schema | quote }}
             - name: CUSTOM_SCHEDULER_DATABASE
-              value: {{ .Values.scheduler.database | quote }}
+              value: {{ .Values.schedulerDb.database | quote }}
             - name: CUSTOM_SCHEDULER_CONNECTION_URL
-              value: {{ .Values.scheduler.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.schedulerDb "name" "schedulerDb") | quote }}
 
             # --- Themes DB ---
             - name: CUSTOM_THEMES_DRIVER
-              value: {{ .Values.themes.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_THEMES_RDBMS_TYPE
-              value: {{ .Values.themes.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_THEMES_USERNAME
-              value: {{ .Values.themes.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_THEMES_PASSWORD
-              value: {{ .Values.themes.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_THEMES_SCHEMA
-              value: {{ .Values.themes.schema | quote }}
+              value: {{ default .Values.db.schema .Values.themesDb.schema | quote }}
             - name: CUSTOM_THEMES_DATABASE
-              value: {{ .Values.themes.database | quote }}
+              value: {{ .Values.themesDb.database | quote }}
             - name: CUSTOM_THEMES_CONNECTION_URL
-              value: {{ .Values.themes.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.themesDb "name" "themesDb") | quote }}
 
             # --- User Tracking DB ---
             - name: CUSTOM_USER_TRACKING_DRIVER
-              value: {{ .Values.usertracking.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_USER_TRACKING_RDBMS_TYPE
-              value: {{ .Values.usertracking.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_USER_TRACKING_USERNAME
-              value: {{ .Values.usertracking.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_USER_TRACKING_PASSWORD
-              value: {{ .Values.usertracking.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_USER_TRACKING_SCHEMA
-              value: {{ .Values.usertracking.schema | quote }}
+              value: {{ default .Values.db.schema .Values.usertrackingDb.schema | quote }}
             - name: CUSTOM_USER_TRACKING_DATABASE
-              value: {{ .Values.usertracking.database | quote }}
+              value: {{ .Values.usertrackingDb.database | quote }}
             - name: CUSTOM_USER_TRACKING_CONNECTION_URL
-              value: {{ .Values.usertracking.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.usertrackingDb "name" "usertrackingDb") | quote }}
             - name: USER_TRACKING_ENABLED
-              value: {{ .Values.usertracking.enabled | quote }}
+              value: {{ .Values.usertrackingDb.enabled | quote }}
 
             # --- Model Inference Logs DB ---
-            {{- if .Values.modelInferenceLogs.enabled }}
+            {{- if .Values.modelInferenceLogsDb.enabled }}
             - name: MODEL_INFERENCE_LOGS_ENABLED
               value: "true"
             - name: CUSTOM_MODEL_INFERENCE_LOGS_DRIVER
-              value: {{ .Values.modelInferenceLogs.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_RDBMS_TYPE
-              value: {{ .Values.modelInferenceLogs.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_USERNAME
-              value: {{ .Values.modelInferenceLogs.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_PASSWORD
-              value: {{ .Values.modelInferenceLogs.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_SCHEMA
-              value: {{ .Values.modelInferenceLogs.schema | quote }}
+              value: {{ default .Values.db.schema .Values.modelInferenceLogsDb.schema | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_DATABASE
-              value: {{ .Values.modelInferenceLogs.database | quote }}
+              value: {{ .Values.modelInferenceLogsDb.database | quote }}
             - name: CUSTOM_MODEL_INFERENCE_LOGS_CONNECTION_URL
-              value: {{ .Values.modelInferenceLogs.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.modelInferenceLogsDb "name" "modelInferenceLogsDb") | quote }}
             {{- end }}
 
             # --- Prompt Hub DB ---
-            {{- if .Values.promptHub.enabled }}
+            {{- if .Values.promptHubDb.enabled }}
             - name: PROMPT_DB_ENABLED
               value: "true"
             - name: CUSTOM_PROMPT_DRIVER
-              value: {{ .Values.promptHub.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_PROMPT_RDBMS_TYPE
-              value: {{ .Values.promptHub.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_PROMPT_USERNAME
-              value: {{ .Values.promptHub.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_PROMPT_PASSWORD
-              value: {{ .Values.promptHub.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_PROMPTS_SCHEMA
-              value: {{ .Values.promptHub.schema | quote }}
+              value: {{ default .Values.db.schema .Values.promptHubDb.schema | quote }}
             - name: CUSTOM_PROMPT_DATABASE
-              value: {{ .Values.promptHub.database | quote }}
+              value: {{ .Values.promptHubDb.database | quote }}
             - name: CUSTOM_PROMPT_CONNECTION_URL
-              value: {{ .Values.promptHub.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.promptHubDb "name" "promptHubDb") | quote }}
             {{- end }}
 
             # --- Audit Logs DB ---
-            {{- if .Values.auditLogs.enabled }}
+            {{- if .Values.auditLogsDb.enabled }}
             - name: AUDIT_LOGS_DATABASE_ENABLED
               value: "true"
             - name: CUSTOM_AUDITLOGS_DRIVER
-              value: {{ .Values.auditLogs.driver | quote }}
+              value: {{ .Values.db.driver | quote }}
             - name: CUSTOM_AUDITLOGS_RDBMS_TYPE
-              value: {{ .Values.auditLogs.rdbmsType | quote }}
+              value: {{ .Values.db.type | quote }}
             - name: CUSTOM_AUDITLOGS_USERNAME
-              value: {{ .Values.auditLogs.username | quote }}
+              value: {{ .Values.db.username | quote }}
             - name: CUSTOM_AUDITLOGS_PASSWORD
-              value: {{ .Values.auditLogs.password | quote }}
+              value: {{ .Values.db.password | quote }}
             - name: CUSTOM_AUDITLOGS_SCHEMA
-              value: {{ .Values.auditLogs.schema | quote }}
+              value: {{ default .Values.db.schema .Values.auditLogsDb.schema | quote }}
             - name: CUSTOM_AUDITLOGS_DATABASE
-              value: {{ .Values.auditLogs.database | quote }}
+              value: {{ .Values.auditLogsDb.database | quote }}
             - name: CUSTOM_AUDITLOGS_CONNECTION_URL
-              value: {{ .Values.auditLogs.connectionUrl | quote }}
+              value: {{ include "semoss.db.urlFor" (dict "root" . "node" .Values.auditLogsDb "name" "auditLogsDb") | quote }}
             {{- end }}
 
             # --- Auth & Security ---

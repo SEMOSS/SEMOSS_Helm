@@ -124,7 +124,7 @@ semoss:
     nodePort: ""
 
   environmentVariables:
-    # Storage provider: AZURE | S3 | GCS | MINIO | LOCAL
+    # Storage provider: AZURE | S3 | GCS | MINIO | LOCAL 
     SEMOSS_STORAGE_PROVIDER: ""
     SEMOSS_IS_CLUSTER: "true"
     # Azure Blob Storage
@@ -200,51 +200,39 @@ zookeeper:
 # System Databases (all PostgreSQL)
 # All five are required. Set connectionUrl + credentials for each.
 # ============================================================
-
-security:
-  connectionUrl: ""   # jdbc:postgresql://<host>:5432/security?currentSchema=public
+db:
+  type: "POSTGRES"
   driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
+  host: "semoss-db.semoss.cluster.local"
+  port: "5432"
+  schema: "public"
   username: ""
   password: ""
-  schema: "public"
+
+securityDb:
+  connectionUrl: ""   # jdbc:postgresql://<host>:5432/security?currentSchema=public
+  schema: ""
   database: "security"
 
-localmaster:
+localmasterDb:
   connectionUrl: ""   # jdbc:postgresql://<host>:5432/localmaster?currentSchema=public
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "localmaster"
 
-scheduler:
+schedulerDb:
   connectionUrl: ""   # jdbc:postgresql://<host>:5432/scheduler?currentSchema=public
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "scheduler"
 
-themes:
+themesDb:
   connectionUrl: ""   # jdbc:postgresql://<host>:5432/themes?currentSchema=public
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "themes"
 
-usertracking:
+usertrackingDb:
   enabled: true       # controls USER_TRACKING_ENABLED feature flag
   connectionUrl: ""   # jdbc:postgresql://<host>:5432/user_tracking?currentSchema=public
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "user_tracking"
 
 
@@ -253,34 +241,22 @@ usertracking:
 # Enable and provide connectionUrl to activate.
 # ============================================================
 
-modelInferenceLogs:
+modelInferenceLogsDb:
   enabled: false
   connectionUrl: ""
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "model_logs"
 
-promptHub:
+promptHubDb:
   enabled: false
   connectionUrl: ""
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "prompt_hub"
 
-auditLogs:
+auditLogsDb:
   enabled: false
   connectionUrl: ""
-  driver: "org.postgresql.Driver"
-  rdbmsType: "POSTGRES"
-  username: ""
-  password: ""
-  schema: "public"
+  schema: ""
   database: "audit_logs"
 
 
