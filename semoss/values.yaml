@@ -179,6 +179,24 @@ ingress:
       paths:
         - /
 
+# ============================================================
+# Envoy-Gateway 
+# ============================================================
+envoyGateway:
+  enabled: true
+  name: "envoy-gateway"
+  gatewayName: "semoss-envoy-gateway"
+  sectionName: http
+  redirect:
+    fromPath: /
+    toFullPath: /SemossWeb/packages/client/dist/
+    statusCode: 302
+  backend:
+    serviceName: "{{ .Values.env }}-{{ .Values.semoss.name }}"   # optional override
+    servicePort: {{ .Values.semoss.service.port }}            # optional override
+    pathPrefix: /
+
+
 
 # ============================================================
 # Zookeeper (required for cluster mode / horizontal scaling)

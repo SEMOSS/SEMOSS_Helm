@@ -1,0 +1,38 @@
+{{- if .Values.envoyGateway.enabled -}}
+{{- $fullName := printf "%s-%s" .Values.env .Values.semoss.name  -}}
+{{- $svcName := printf "%s-%s" .Values.env .Values.semoss.name  -}}
+{{- $svcPort := .Values.semoss.service.port -}}
+{{- $gwName := .Values.envoyGateway.gatewayName -}}
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ printf "%s-%s" .Values.env "httproute-root-approot-redirect" }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - name: {{ $gwName }}
+      namespace: {{ .Release.Namespace }}
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: {{ default "/" .Values.envoyGateway.redirect.fromPath | quote }}
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: {{ .Values.envoyGateway.redirect.toFullPath | quote }}
+            statusCode: {{ default 302 .Values.envoyGateway.redirect.statusCode }}
+
+    # Rule 2: All other paths -> service
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ default "/" .Values.envoyGateway.backend.pathPrefix | quote }}
+      backendRefs:
+        - name: {{ $svcName | quote }}
+          port: {{ $svcPort }}
+  {{- end }}
