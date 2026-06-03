@@ -192,8 +192,8 @@ envoyGateway:
     toFullPath: /SemossWeb/packages/client/dist/
     statusCode: 302
   backend:
-    serviceName: "{{ .Values.env }}-{{ .Values.semoss.name }}"   # optional override
-    servicePort: {{ .Values.semoss.service.port }}            # optional override
+    # serviceName: "{{ .Values.env }}-{{ .Values.semoss.name }}"   # optional override
+    # servicePort: {{ .Values.semoss.service.port }}            # optional override
     pathPrefix: /
 
 
