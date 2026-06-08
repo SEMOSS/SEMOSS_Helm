@@ -13,9 +13,9 @@ spec:
     name: {{ printf "%s-%s" .Values.env "httproute-root-approot-redirect" }}
   # The following configures the session affinity cookie
   loadBalancer:
-    type: ConsistentHash
+    type: {{ default "ConsistentHash" .Values.envoyGateway.btp.loadBalancerType | quote }}
     consistentHash:
-      type: Cookie
+      type: {{ default "Cookie" .Values.envoyGateway.btp.consistentHashType | quote }}
       cookie:
         name: {{ default "semoss-envoy-prod" .Values.envoyGateway.btp.cookieName | quote }}
         ttl: {{ default "48h" .Values.envoyGateway.btp.cookieTtl | quote }}
