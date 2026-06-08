@@ -1,0 +1,30 @@
+{{- if .Values.envoyGateway.enabled -}}
+{{- $fullName := printf "%s-%s-btp" .Values.env .Values.semoss.name  -}}
+
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: {{ $fullName | quote }}
+  namespace: {{ .Release.Namespace }}
+spec:
+    targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: {{ printf "%s-%s" .Values.env "httproute-root-approot-redirect" }}
+  # The following configures the session affinity cookie
+  loadBalancer:
+    type: ConsistentHash
+    consistentHash:
+      type: Cookie
+      cookie:
+        name: {{ default "semoss-envoy-prod" .Values.envoyGateway.btp.cookieName | quote }}
+        ttl: {{ default "48h" .Values.envoyGateway.btp.cookieTtl | quote }}
+        attributes:
+          Path: /
+          Secure: "true"
+  # Upstream idle timeout to semoss-service
+  timeout:
+    http:
+      connectionIdleTimeout: 350s
+ 
+  {{- end }}

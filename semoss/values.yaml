@@ -195,6 +195,12 @@ envoyGateway:
     # serviceName: "{{ .Values.env }}-{{ .Values.semoss.name }}"   # optional override
     # servicePort: {{ .Values.semoss.service.port }}            # optional override
     pathPrefix: /
+  btp:
+    # BackendTrafficPolicy settings (optional)
+    loadBalancerType: "ConsistentHash"   # e.g. "RoundRobin", "LeastRequest", "RingHash", "Random", "ConsistentHash"
+    consistentHashType: "Cookie"         # e.g. "Header", "Cookie", "QueryParameter"
+    cookieName: "semoss-envoy-prod"
+    cookieTtl: 48h
 
 
 
