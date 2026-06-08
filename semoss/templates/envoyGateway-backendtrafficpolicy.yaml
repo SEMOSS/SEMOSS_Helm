@@ -7,7 +7,7 @@ metadata:
   name: {{ $fullName | quote }}
   namespace: {{ .Release.Namespace }}
 spec:
-    targetRef:
+  targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
     name: {{ printf "%s-%s" .Values.env "httproute-root-approot-redirect" }}
